@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work 01 — AI Workspace Infrastructure · AI COWORK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400&family=PT+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0d0d10; --ink: #f0f0ee; --muted: rgba(240,240,238,0.38); --red: #d90000; --accent: #b0b4c4; }
+
+    html, body { background: var(--bg); color: var(--ink); overflow-x: hidden; min-height: 100vh; }
+
+    /* ── CANVAS ── */
+    #work-canvas {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.8vw 3vw;
+      border-bottom: 1px solid rgba(240,240,238,0.08);
+      backdrop-filter: blur(12px);
+    }
+    .nav-back {
+      font-family: 'PT Mono', monospace; font-size: 0.62vw;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--ink); text-decoration: none; opacity: 0.6;
+      transition: opacity 0.2s;
+      display: flex; align-items: center; gap: 0.5vw;
+    }
+    .nav-back:hover { opacity: 1; }
+    .nav-back::before { content: '←'; }
+    .nav-logo {
+      font-family: 'PT Mono', monospace; font-size: 0.62vw;
+      text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.5;
+    }
+    .nav-num {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 0.62vw; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.35;
+    }
+
+    /* ── HERO BLOCK ── */
+    .work-hero {
+      min-height: 100vh; display: flex; align-items: flex-end;
+      padding: 0 8vw 6vw;
+      position: relative; z-index: 2;
+    }
+    .work-hero-inner { width: 100%; }
+    .work-tag {
+      font-family: 'PT Mono', monospace; font-size: 0.58vw;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--accent); margin-bottom: 2vw; display: block;
+      opacity: 0;
+    }
+    .work-title {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 10.5vw; line-height: 0.88;
+      text-transform: uppercase; letter-spacing: -0.03em;
+      max-width: 80vw; opacity: 0;
+    }
+    .work-title em { font-style: normal; color: var(--accent); }
+    .work-meta {
+      display: flex; gap: 6vw; margin-top: 4vw;
+      border-top: 1px solid rgba(240,240,238,0.1);
+      padding-top: 2.5vw; opacity: 0;
+    }
+    .work-meta-item { }
+    .work-meta-label {
+      font-family: 'PT Mono', monospace; font-size: 0.52vw;
+      text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.4;
+      margin-bottom: 0.4vw;
+    }
+    .work-meta-val {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 1.1vw; text-transform: uppercase; letter-spacing: -0.01em;
+    }
+
+    /* ── CONTENT SECTIONS ── */
+    .work-body {
+      position: relative; z-index: 2;
+      padding: 0 8vw 12vw;
+    }
+    .section-rule {
+      width: 100%; height: 1px;
+      background: rgba(240,240,238,0.1); margin-bottom: 6vw;
+    }
+
+    /* Overview */
+    .overview-grid {
+      display: grid; grid-template-columns: 1fr 1.6fr; gap: 8vw;
+      margin-bottom: 8vw;
+    }
+    .overview-label {
+      font-family: 'PT Mono', monospace; font-size: 0.52vw;
+      text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.38;
+      margin-bottom: 1.2vw;
+    }
+    .overview-num {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 5vw; line-height: 1; opacity: 0.08; margin-bottom: 1vw;
+    }
+    .overview-heading {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 2.4vw; text-transform: uppercase;
+      letter-spacing: -0.025em; line-height: 1.05; margin-bottom: 2vw;
+    }
+    .overview-body {
+      font-family: 'Inter', sans-serif; font-weight: 300;
+      font-size: 0.95vw; line-height: 1.75; opacity: 0.65;
+    }
+    .overview-body p + p { margin-top: 1em; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: rgba(240,240,238,0.08);
+      border: 1px solid rgba(240,240,238,0.08);
+      border-radius: 0.4vw; margin-bottom: 8vw; overflow: hidden;
+    }
+    .stat-block {
+      background: var(--bg); padding: 2.5vw 2vw;
+    }
+    .stat-block-val {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 3.5vw; line-height: 1; color: var(--accent);
+    }
+    .stat-block-lbl {
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      opacity: 0.4; margin-top: 0.5vw;
+    }
+
+    /* Features */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: rgba(240,240,238,0.08);
+      border: 1px solid rgba(240,240,238,0.08);
+      border-radius: 0.4vw; overflow: hidden; margin-bottom: 8vw;
+    }
+    .feature-item {
+      background: var(--bg); padding: 2.5vw 2vw;
+    }
+    .feature-num {
+      font-family: 'PT Mono', monospace; font-size: 0.5vw;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      opacity: 0.3; margin-bottom: 1.2vw;
+    }
+    .feature-title {
+      font-family: 'Inter', sans-serif; font-weight: 300;
+      font-size: 1.1vw; text-transform: uppercase;
+      letter-spacing: -0.01em; margin-bottom: 0.8vw;
+    }
+    .feature-desc {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 0.75vw; line-height: 1.6; opacity: 0.5;
+    }
+
+    /* Tech stack */
+    .tech-row {
+      display: flex; flex-wrap: wrap; gap: 0.6vw; margin-bottom: 8vw;
+    }
+    .tech-tag {
+      font-family: 'PT Mono', monospace; font-size: 0.58vw;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      border: 1px solid rgba(240,240,238,0.2);
+      border-radius: 2vw; padding: 0.4vw 1vw;
+      color: var(--ink); opacity: 0.7;
+    }
+
+    /* ── CAMERA DEMO ── */
+    .cam-label {
+      font-family: 'PT Mono', monospace; font-size: 0.52vw;
+      text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.38;
+      margin-bottom: 1.2vw;
+    }
+    .cam-section { margin-bottom: 8vw; }
+    .cam-frame {
+      position: relative; background: #060608;
+      border: 1px solid rgba(240,240,238,0.1); border-radius: 0.4vw;
+      overflow: hidden; width: 100%; aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #cam-video {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; transform: scaleX(-1); display: none;
+    }
+    #cam-snap-img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: none;
+    }
+    .cam-placeholder {
+      display: flex; flex-direction: column; align-items: center; gap: 0.8vw;
+    }
+    .cam-icon {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 4vw; opacity: 0.08; line-height: 1; user-select: none;
+    }
+    .cam-hint {
+      font-family: 'PT Mono', monospace; font-size: 0.50vw;
+      text-transform: uppercase; letter-spacing: 0.18em; opacity: 0.18;
+    }
+    /* Corner sight-line decorators */
+    .cam-corner {
+      position: absolute; width: 1.2vw; height: 1.2vw;
+      border-color: rgba(240,240,238,0.18); border-style: solid; border-width: 0;
+      pointer-events: none;
+    }
+    .cam-corner.tl { top: 0.7vw; left: 0.7vw; border-top-width:1px; border-left-width:1px; }
+    .cam-corner.tr { top: 0.7vw; right: 0.7vw; border-top-width:1px; border-right-width:1px; }
+    .cam-corner.bl { bottom: 0.7vw; left: 0.7vw; border-bottom-width:1px; border-left-width:1px; }
+    .cam-corner.br { bottom: 0.7vw; right: 0.7vw; border-bottom-width:1px; border-right-width:1px; }
+    .cam-controls {
+      display: flex; gap: 0.65vw; margin-top: 0.9vw; align-items: center;
+    }
+    .cam-btn {
+      font-family: 'PT Mono', monospace; font-size: 0.54vw;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      border: 1px solid rgba(240,240,238,0.2); border-radius: 2vw;
+      padding: 0.46vw 1.3vw; color: var(--ink); background: transparent;
+      cursor: pointer; transition: opacity 0.18s, border-color 0.18s; opacity: 0.55;
+    }
+    .cam-btn:hover:not(:disabled) { opacity: 1; border-color: rgba(240,240,238,0.5); }
+    .cam-btn:disabled { opacity: 0.16; cursor: default; }
+    /* Trash / clear button — red tint, arrow points DOWN into the bin */
+    .cam-btn-del {
+      display: inline-flex; align-items: center; gap: 0.35vw;
+      border-color: rgba(200,60,60,0.3); color: #d07070;
+    }
+    .cam-btn-del:hover:not(:disabled) { border-color: rgba(217,0,0,0.6); color: #ff7070; opacity: 1; }
+    .cam-del-arrow { font-size: 0.75vw; line-height: 1; }
+    .cam-status {
+      font-family: 'PT Mono', monospace; font-size: 0.48vw;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      opacity: 0.28; margin-left: auto;
+    }
+    .cam-status.live   { color: #70d090; opacity: 0.85; }
+    .cam-status.denied { color: #d07070; opacity: 0.75; }
+    @keyframes blink { 0%,100%{opacity:0.85} 50%{opacity:0.25} }
+    .cam-status.live::after { content: ' ●'; animation: blink 1.5s ease-in-out infinite; }
+
+    /* CTA */
+    .work-cta-row {
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid rgba(240,240,238,0.1);
+      padding-top: 3vw;
+    }
+    .cta-label { font-family: 'PT Mono', monospace; font-size: 0.55vw; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.3; }
+    .cta-btn {
+      font-family: 'PT Mono', monospace; font-size: 0.65vw;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--ink); text-decoration: none;
+      border: 1px solid rgba(240,240,238,0.3);
+      border-radius: 2vw; padding: 0.6vw 1.8vw;
+      transition: border-color 0.2s, opacity 0.2s; opacity: 0.75;
+    }
+    .cta-btn:hover { opacity: 1; border-color: rgba(240,240,238,0.7); }
+    .next-project-link {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 2.2vw; text-transform: uppercase;
+      letter-spacing: -0.02em; color: var(--ink);
+      text-decoration: none; opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+    .next-project-link:hover { opacity: 1; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 4vw 5vw; }
+      .nav-back, .nav-logo, .nav-num { font-size: 2.2vw; }
+      .work-hero { padding: 0 5vw 10vw; }
+      .work-tag { font-size: 2vw; margin-bottom: 5vw; }
+      .work-title { font-size: 14vw; max-width: 95vw; }
+      .work-meta { flex-wrap: wrap; gap: 6vw; margin-top: 7vw; padding-top: 5vw; }
+      .work-meta-label { font-size: 1.8vw; }
+      .work-meta-val { font-size: 3.5vw; }
+      .work-body { padding: 0 5vw 15vw; }
+      .overview-grid { grid-template-columns: 1fr; gap: 6vw; }
+      .overview-heading { font-size: 7vw; }
+      .overview-body { font-size: 3.2vw; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .stat-block-val { font-size: 10vw; }
+      .stat-block-lbl { font-size: 2vw; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-title { font-size: 4vw; }
+      .feature-desc { font-size: 2.5vw; }
+      .tech-tag { font-size: 2vw; }
+      .next-project-link { font-size: 6vw; }
+      .cta-btn, .cta-label { font-size: 2.2vw; }
+      .cam-label { font-size: 1.8vw; }
+      .cam-icon { font-size: 12vw; }
+      .cam-hint { font-size: 1.8vw; }
+      .cam-btn { font-size: 2vw; padding: 1.5vw 3.5vw; border-radius: 6vw; }
+      .cam-status { font-size: 1.7vw; }
+      .cam-corner { width: 3.5vw; height: 3.5vw; }
+      .cam-corner.tl { top: 2vw; left: 2vw; }
+      .cam-corner.tr { top: 2vw; right: 2vw; }
+      .cam-corner.bl { bottom: 2vw; left: 2vw; }
+      .cam-corner.br { bottom: 2vw; right: 2vw; }
+      .cam-controls { gap: 2vw; margin-top: 2.5vw; flex-wrap: wrap; }
+      .cam-del-arrow { font-size: 2.2vw; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="work-canvas"></canvas>
+
+<nav>
+  <a href="index.html" class="nav-back">All Projects</a>
+  <span class="nav-logo">AI COWORK ® STUDIO</span>
+  <span class="nav-num">01 / 03</span>
+</nav>
+
+<div class="work-hero">
+  <div class="work-hero-inner">
+    <span class="work-tag">Project 01 · AI Infrastructure</span>
+    <h1 class="work-title">AI Workspace<br><em>Infrastructure</em></h1>
+    <div class="work-meta">
+      <div class="work-meta-item">
+        <div class="work-meta-label">Category</div>
+        <div class="work-meta-val">Infrastructure</div>
+      </div>
+      <div class="work-meta-item">
+        <div class="work-meta-label">Stack</div>
+        <div class="work-meta-val">AI Native</div>
+      </div>
+      <div class="work-meta-item">
+        <div class="work-meta-label">Status</div>
+        <div class="work-meta-val">Live</div>
+      </div>
+      <div class="work-meta-item">
+        <div class="work-meta-label">Year</div>
+        <div class="work-meta-val">2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="work-body">
+  <div class="section-rule"></div>
+
+  <div class="overview-grid">
+    <div>
+      <div class="overview-label">Overview</div>
+      <div class="overview-num">01</div>
+    </div>
+    <div>
+      <div class="overview-heading">The workspace<br>built for builders</div>
+      <div class="overview-body">
+        <p>AI Workspace Infrastructure reimagines the foundation of collaborative work. Designed from the ground up for AI-native teams, it provides the primitives that modern builders actually need — real-time sync, persistent context, and agent-ready APIs.</p>
+        <p>Every component is composable, every integration is first-class, and every experience is engineered for the speed that today's AI workflows demand. No vendor lock-in. No legacy baggage.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-block">
+      <div class="stat-block-val">98%</div>
+      <div class="stat-block-lbl">Speed score</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-block-val">99%</div>
+      <div class="stat-block-lbl">Reliability</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-block-val">100%</div>
+      <div class="stat-block-lbl">AI Native</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-block-val">0%</div>
+      <div class="stat-block-lbl">Boring tools</div>
+    </div>
+  </div>
+
+  <div class="section-rule"></div>
+
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-num">Feature 01</div>
+      <div class="feature-title">Real-time Sync</div>
+      <div class="feature-desc">Sub-50ms latency across all workspace primitives. CRDT-based conflict resolution that just works.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">Feature 02</div>
+      <div class="feature-title">AI Agents</div>
+      <div class="feature-desc">First-class agent runtime with persistent memory, tool access, and multi-agent coordination built in.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">Feature 03</div>
+      <div class="feature-title">Collaborative Canvas</div>
+      <div class="feature-desc">Infinite shared canvas where humans and agents coexist. Visual thinking at the speed of conversation.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">Feature 04</div>
+      <div class="feature-title">Smart Docs</div>
+      <div class="feature-desc">Documents that understand context. Automatic linking, summarization, and cross-reference as you write.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">Feature 05</div>
+      <div class="feature-title">Zero Lock-in</div>
+      <div class="feature-desc">Open APIs, standard protocols, and full data portability. Your workspace, your rules.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">Feature 06</div>
+      <div class="feature-title">Presence Layers</div>
+      <div class="feature-desc">See exactly who — and what agents — are active in any space. Real collaboration awareness.</div>
+    </div>
+  </div>
+
+  <div class="section-rule"></div>
+  <div class="overview-label" style="margin-bottom:1.5vw">Tech Stack</div>
+  <div class="tech-row">
+    <span class="tech-tag">WebSocket</span>
+    <span class="tech-tag">CRDT</span>
+    <span class="tech-tag">LLM APIs</span>
+    <span class="tech-tag">React</span>
+    <span class="tech-tag">Three.js</span>
+    <span class="tech-tag">Rust</span>
+    <span class="tech-tag">Postgres</span>
+    <span class="tech-tag">Redis</span>
+    <span class="tech-tag">S3</span>
+    <span class="tech-tag">Docker</span>
+    <span class="tech-tag">k8s</span>
+  </div>
+
+  <div class="section-rule"></div>
+  <div class="cam-label">Live Demo · Camera Capture</div>
+  <div class="cam-section">
+    <div class="cam-frame" id="cam-frame">
+      <div class="cam-corner tl"></div>
+      <div class="cam-corner tr"></div>
+      <div class="cam-corner bl"></div>
+      <div class="cam-corner br"></div>
+      <video id="cam-video" autoplay playsinline muted></video>
+      <img id="cam-snap-img" alt="Snapshot">
+      <div class="cam-placeholder" id="cam-placeholder">
+        <div class="cam-icon">◎</div>
+        <div class="cam-hint">Camera not connected</div>
+      </div>
+    </div>
+    <div class="cam-controls">
+      <button class="cam-btn" id="btn-connect">Connect Camera</button>
+      <button class="cam-btn" id="btn-capture" disabled>Capture</button>
+      <button class="cam-btn cam-btn-del" id="btn-trash" disabled>
+        <span class="cam-del-arrow">↓</span>Clear
+      </button>
+      <span class="cam-status" id="cam-status">Awaiting Auth</span>
+    </div>
+  </div>
+
+  <div class="work-cta-row">
+    <div>
+      <div class="cta-label">Next project</div>
+      <a href="work1.html" class="next-project-link">AI Agent Workflows →</a>
+    </div>
+    <a href="index.html" class="cta-btn">← Back to all</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+// ── ENTRANCE ANIMATIONS ──
+window.addEventListener('DOMContentLoaded', () => {
+  gsap.to('.work-tag',   {opacity:1,    y:0, duration:0.7, delay:0.3, ease:'power3.out', from:{opacity:0, y:16}})
+  gsap.fromTo('.work-title', {opacity:0, y:40}, {opacity:1, y:0, duration:1.0, delay:0.5, ease:'power4.out'})
+  gsap.fromTo('.work-meta',  {opacity:0, y:20}, {opacity:1, y:0, duration:0.8, delay:0.9, ease:'power3.out'})
+})
+
+// ── BACKGROUND: subtle animated particle field ──
+const canvas = document.getElementById('work-canvas')
+
+// Detect WebGL support using a throwaway canvas (avoids locking our canvas to a non-Three context)
+const hasWebGL = (() => {
+  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl') || c.getContext('experimental-webgl')) }
+  catch(e) { return false }
+})()
+
+if (!hasWebGL) {
+  canvas.style.display = 'none'
+} else {
+  // Simple Three.js background — slow drifting particles
+  const scene  = new THREE.Scene()
+  const cam    = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100)
+  const rend   = new THREE.WebGLRenderer({canvas, antialias:false, alpha:true})
+  rend.setPixelRatio(1)  // keep lightweight
+  rend.setSize(window.innerWidth, window.innerHeight)
+  cam.position.set(0, 0, 5)
+
+  // Floating particles
+  const pts = 320
+  const pos = new Float32Array(pts * 3)
+  for (let i = 0; i < pts; i++) {
+    pos[i*3]   = (Math.random()-0.5)*22
+    pos[i*3+1] = (Math.random()-0.5)*14
+    pos[i*3+2] = (Math.random()-0.5)*10
+  }
+  const geo = new THREE.BufferGeometry()
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+  const mat = new THREE.PointsMaterial({color:0x8890a8, size:0.04, transparent:true, opacity:0.45})
+  scene.add(new THREE.Points(geo, mat))
+
+  // Slow rotation
+  const clock = new THREE.Clock()
+  ;(function tick() {
+    requestAnimationFrame(tick)
+    const t = clock.getElapsedTime()
+    scene.rotation.y = t * 0.02
+    scene.rotation.x = Math.sin(t * 0.015) * 0.08
+    rend.render(scene, cam)
+  })()
+
+  window.addEventListener('resize', () => {
+    rend.setSize(window.innerWidth, window.innerHeight)
+    cam.aspect = window.innerWidth/window.innerHeight
+    cam.updateProjectionMatrix()
+  })
+}
+
+// ── CAMERA DEMO ─────────────────────────────────────────────
+const camVideo       = document.getElementById('cam-video')
+const camSnapImg     = document.getElementById('cam-snap-img')
+const camPlaceholder = document.getElementById('cam-placeholder')
+const btnConnect     = document.getElementById('btn-connect')
+const btnCapture     = document.getElementById('btn-capture')
+const btnTrash       = document.getElementById('btn-trash')
+const camStatusEl    = document.getElementById('cam-status')
+let camStream = null
+
+function setCamStatus(text, cls) {
+  camStatusEl.textContent = text
+  camStatusEl.className = 'cam-status' + (cls ? ' ' + cls : '')
+}
+
+async function startCam() {
+  setCamStatus('Requesting auth…')
+  btnConnect.disabled = true
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    })
+    camVideo.srcObject = camStream
+    camVideo.style.display = 'block'
+    camPlaceholder.style.display = 'none'
+    btnConnect.textContent = 'Disconnect'
+    btnConnect.disabled = false
+    btnCapture.disabled = false
+    setCamStatus('Live', 'live')
+  } catch(e) {
+    const msg = e.name === 'NotAllowedError' ? 'Permission Denied' :
+                e.name === 'NotFoundError'   ? 'No Camera Found'  : 'Error'
+    setCamStatus(msg, 'denied')
+    btnConnect.disabled = false
+  }
+}
+
+function stopCam() {
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null }
+  camVideo.srcObject = null; camVideo.style.display = 'none'
+  camSnapImg.src = '';        camSnapImg.style.display = 'none'
+  camPlaceholder.style.display = 'flex'
+  btnConnect.textContent = 'Connect Camera'
+  btnCapture.disabled = true; btnTrash.disabled = true
+  setCamStatus('Awaiting Auth')
+}
+
+// Connect / Disconnect toggle
+btnConnect.addEventListener('click', () => camStream ? stopCam() : startCam())
+
+// Capture snapshot — mirrors the video to match the mirrored preview
+btnCapture.addEventListener('click', () => {
+  if (!camStream) return
+  const c   = document.createElement('canvas')
+  c.width   = camVideo.videoWidth
+  c.height  = camVideo.videoHeight
+  const ctx = c.getContext('2d')
+  ctx.save(); ctx.scale(-1, 1); ctx.drawImage(camVideo, -c.width, 0); ctx.restore()
+  camSnapImg.src = c.toDataURL('image/jpeg', 0.92)
+  camSnapImg.style.display = 'block'
+  camVideo.style.display   = 'none'
+  btnTrash.disabled = false
+  setCamStatus('Captured')
+})
+
+// Clear capture — ↓ arrow into trash, restores live feed if still connected
+btnTrash.addEventListener('click', () => {
+  camSnapImg.src = ''; camSnapImg.style.display = 'none'
+  if (camStream) {
+    camVideo.style.display = 'block'
+    setCamStatus('Live', 'live')
+  } else {
+    camPlaceholder.style.display = 'flex'
+    setCamStatus('Awaiting Auth')
+  }
+  btnTrash.disabled = true
+})
+</script>
+</body>
+</html>

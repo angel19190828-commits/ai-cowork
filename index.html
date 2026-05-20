@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI COWORK ® STUDIO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400&family=PT+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #f4f2ef; --ink: #141414; --red: #d90000; --dark: #0d0d10; }
+    html, body { background: var(--bg); color: var(--ink); overflow-x: hidden; }
+
+    #canvas-wrap { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+    /* ── LATERAL ── */
+    #lateral {
+      position: fixed; left: 1.2vw; top: 50%;
+      transform: translateY(-50%) rotate(180deg);
+      writing-mode: vertical-rl; font-family: 'Inter', sans-serif;
+      font-weight: 100; font-size: 8.8vw; line-height: 0.82;
+      text-transform: uppercase; z-index: 5; pointer-events: none;
+      letter-spacing: -0.02em; white-space: nowrap;
+    }
+    #lateral .char-wrap { display: inline-block; overflow: hidden; line-height: 0.95; }
+    #lateral .char-inner { display: inline-block; }
+
+    /* ── RECEIPT ── */
+    #receipt {
+      position: fixed; bottom: 1.8vw; right: 1.8vw;
+      font-family: 'PT Mono', monospace; font-size: 0.72vw;
+      line-height: 1.75; text-align: right; z-index: 10;
+      text-transform: uppercase; pointer-events: none;
+    }
+    #receipt .div { opacity: 0.28; }
+    #rec-lines { margin-top: 0.1vw; }
+    .rec-hint { opacity: 0.35; }
+    .rec-line { line-height: 1.6; }
+    .rec-line .rec-ref-txt { opacity: 0.38; font-size: 0.50vw; }
+
+    main { position: relative; z-index: 2; }
+
+    /* ── HERO ── */
+    .hero {
+      height: 100vh; display: flex; flex-direction: column;
+      justify-content: space-between; padding: 2vw 2.5vw 2.5vw 10vw;
+    }
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .hero-brand { font-family: 'PT Mono', monospace; font-size: 0.62vw; text-transform: uppercase; letter-spacing: 0.07em; }
+    .hero-cta {
+      border: 1px solid var(--ink); border-radius: 2vw;
+      padding: 0.45vw 1.2vw; font-family: 'PT Mono', monospace;
+      font-size: 0.62vw; text-transform: uppercase;
+    }
+    .hero-center { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .hero-headline {
+      font-family: 'Inter', sans-serif; font-weight: 100; font-size: 9.5vw;
+      line-height: 0.88; text-transform: uppercase; letter-spacing: -0.03em; max-width: 62vw;
+    }
+    .hero-headline .word-wrap { display: block; overflow: hidden; line-height: 0.95; }
+    .hero-headline .word-inner { display: block; }
+    .hero-sub { margin-top: 2vw; font-family: 'PT Mono', monospace; font-size: 0.65vw; opacity: 0; letter-spacing: 0.08em; text-transform: uppercase; }
+    .hero-scroll { text-align: center; padding-bottom: 0.5vw; font-family: 'PT Mono', monospace; font-size: 0.58vw; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0.45; }
+
+    /* ── SERVICE SECTIONS ── */
+    .section {
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: flex-end; position: relative; overflow: hidden;
+    }
+    .section-bg-num {
+      position: absolute; left: 4vw; top: 50%; transform: translateY(-50%);
+      font-family: 'Inter', sans-serif; font-weight: 100; font-size: 44vw;
+      line-height: 1; color: var(--ink); opacity: 0.035; z-index: -1;
+      pointer-events: none; letter-spacing: -0.06em; user-select: none;
+    }
+
+    /* card-wrap is the perspective parent for the flip */
+    .card-wrap {
+      margin-left: auto; padding-right: 6vw;
+      position: relative; z-index: 3;
+      perspective: 1400px;
+    }
+
+    /* ── FLIP WRAPPER ── */
+    .card-flip {
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: pointer;
+      /* start hidden — GSAP animates in */
+      opacity: 0;
+    }
+    .card-front-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-back-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform: rotateY(180deg);
+      background: var(--dark);
+      border: 1px solid var(--ink);
+      border-radius: 0.45vw;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 2.5vw 3vw; overflow: hidden;
+    }
+    .back-label {
+      font-family: 'PT Mono', monospace; font-size: 0.52vw;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: #b0b4c4; margin-bottom: 1vw;
+    }
+    .back-title {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 3vw; text-transform: uppercase;
+      letter-spacing: -0.03em; line-height: 0.95;
+      color: #f0f0ee; max-width: 75%;
+    }
+    .back-sub {
+      font-family: 'PT Mono', monospace; font-size: 0.58vw;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: rgba(240,240,238,0.4); margin-top: 1.4vw;
+    }
+    .back-bar {
+      width: 0; height: 1px;
+      background: rgba(240,240,238,0.3);
+      margin-top: 1vw;
+    }
+    .back-bignum {
+      position: absolute; right: 2vw; bottom: 1.5vw;
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 6vw; line-height: 1;
+      color: rgba(240,240,238,0.06);
+    }
+
+    /* ── ORIGINAL CARD ── */
+    .card {
+      width: 36vw;
+      border: 1px solid var(--ink); border-radius: 0.45vw;
+      background: rgba(244,242,239,0.92); backdrop-filter: blur(14px);
+      position: relative; overflow: visible;
+    }
+    .card-num {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 5.2vw; line-height: 1;
+      padding: 1vw 1.4vw 0.4vw; border-bottom: 1px solid var(--ink); overflow: hidden;
+    }
+    .card-num .num-inner { display: block; }
+    .card-title {
+      font-family: 'Inter', sans-serif; font-weight: 100; font-size: 1.6vw;
+      text-transform: uppercase; padding: 0.8vw 1.4vw;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      letter-spacing: -0.01em; line-height: 1.1; overflow: hidden;
+    }
+    .card-title .title-inner { display: block; }
+    .card-body { height: 8vw; }
+    .side-label {
+      position: absolute; font-family: 'PT Mono', monospace;
+      font-size: 0.48vw; text-transform: uppercase; letter-spacing: 0.1em;
+      white-space: nowrap; writing-mode: vertical-rl;
+      top: 0; bottom: 0; display: flex; align-items: center; padding: 0 0.35vw;
+    }
+    .side-label.r { right: 0; border-right: 1px solid var(--ink); }
+    .side-label.l { left: 0; border-left: 1px solid var(--ink); transform: rotate(180deg); }
+    .card-foot {
+      border-top: 1px solid var(--ink); padding: 0.8vw 1.4vw;
+      display: grid; grid-template-columns: auto 1fr; gap: 1.2vw; align-items: start;
+    }
+    .bc-wrap {
+      padding-right: 1.2vw; border-right: 1px solid rgba(0,0,0,0.15);
+      display: flex; flex-direction: column; gap: 0.5vw;
+    }
+    .bc-wrap svg { width: 6.5vw; height: 1.3vw; display: block; }
+    .purchased {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--red); color: var(--red); border-radius: 2vw;
+      padding: 0.22vw 0.7vw; font-family: 'PT Mono', monospace;
+      font-size: 0.58vw; text-transform: uppercase; width: fit-content;
+    }
+    .stats { font-family: 'PT Mono', monospace; font-size: 0.6vw; line-height: 1.5; }
+    .for-line { font-size: 0.52vw; opacity: 0.5; margin-bottom: 0.25vw; }
+    .stat { display: flex; justify-content: space-between; gap: 0.8vw; }
+    .stat .k { opacity: 0.6; }
+    .stat .v { font-weight: 500; }
+    .ingr {
+      margin-top: 0.4vw; padding-top: 0.35vw;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      font-size: 0.5vw; opacity: 0.45; line-height: 1.35;
+    }
+
+    /* ── INTRO SECTION ── */
+    .intro-section {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 10vw 8vw 10vw 12vw; position: relative; overflow: hidden;
+    }
+    .intro-inner { width: 100%; }
+
+    .intro-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.8vw; margin-bottom: 5vw;
+    }
+    .intro-index {
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
+    }
+    .intro-tag {
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
+    }
+
+    .intro-headline {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 7.8vw; line-height: 0.9; text-transform: uppercase;
+      letter-spacing: -0.03em; margin-bottom: 5vw;
+    }
+    .intro-headline .iw { display: block; overflow: hidden; line-height: 0.95; }
+    .intro-headline .iw-inner { display: block; }
+
+    .intro-body-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6vw;
+      padding-bottom: 5vw; border-bottom: 1px solid rgba(0,0,0,0.08);
+      margin-bottom: 5vw;
+    }
+    .intro-body-text {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 1.05vw; line-height: 1.85; opacity: 0;
+    }
+    .intro-body-text.bold-first::first-line {
+      font-weight: 300;
+    }
+
+    /* Workflow step grid */
+    .intro-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border: 1px solid rgba(0,0,0,0.1); border-radius: 0.4vw; overflow: hidden;
+    }
+    .intro-step {
+      padding: 2.2vw 1.8vw;
+      border-right: 1px solid rgba(0,0,0,0.1);
+      opacity: 0; transform: translateY(14px);
+    }
+    .intro-step:last-child { border-right: none; }
+
+    .step-num {
+      font-family: 'PT Mono', monospace; font-size: 0.48vw;
+      letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.3;
+      margin-bottom: 1.2vw;
+    }
+    .step-arrow {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 1.1vw; opacity: 0.18; margin-bottom: 0.6vw;
+    }
+    .step-name {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 1.5vw; text-transform: uppercase; letter-spacing: -0.02em;
+      line-height: 1; margin-bottom: 1vw;
+    }
+    .step-desc {
+      font-family: 'PT Mono', monospace; font-size: 0.5vw;
+      line-height: 1.65; opacity: 0.45; text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* Large decorative number behind steps */
+    .intro-bg-glyph {
+      position: absolute; right: -2vw; top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 38vw; line-height: 1; opacity: 0.025;
+      pointer-events: none; user-select: none; letter-spacing: -0.06em;
+      color: var(--ink);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      #lateral { font-size: 13vw; left: 0.5vw; }
+      #receipt { font-size: 2.3vw; bottom: 3vw; right: 3vw; }
+      .rec-line .rec-ref-txt { font-size: 1.6vw; }
+      .hero { padding: 5vw 5vw 6vw 16vw; }
+      .hero-brand { font-size: 2vw; }
+      .hero-cta { font-size: 2vw; padding: 1.5vw 3.5vw; border-radius: 6vw; }
+      .hero-headline { font-size: 14vw; max-width: 85vw; }
+      .hero-sub { font-size: 2.2vw; margin-top: 5vw; }
+      .hero-scroll { font-size: 2vw; }
+      .intro-section { padding: 12vw 5vw 12vw 16vw; }
+      .intro-headline { font-size: 12vw; margin-bottom: 8vw; }
+      .intro-header { padding-top: 4vw; margin-bottom: 8vw; }
+      .intro-index, .intro-tag { font-size: 1.8vw; }
+      .intro-body-grid { grid-template-columns: 1fr; gap: 5vw; }
+      .intro-body-text { font-size: 3.2vw; }
+      .intro-steps { grid-template-columns: repeat(2, 1fr); }
+      .intro-step { padding: 5vw 4vw; border-bottom: 1px solid rgba(0,0,0,0.1); }
+      .intro-step:nth-child(even) { border-right: none; }
+      .step-name { font-size: 5vw; }
+      .step-desc { font-size: 1.8vw; }
+      .step-num { font-size: 1.6vw; }
+      .section { padding: 0 5vw 0 16vw; }
+      .card-wrap { padding-right: 0; width: 100%; }
+      .card { width: 100%; border-radius: 1.5vw; }
+      .card-num { font-size: 14vw; padding: 3vw 4vw 1.5vw; }
+      .card-title { font-size: 5vw; padding: 2.5vw 4vw; }
+      .card-body { height: 22vw; }
+      .side-label { font-size: 1.5vw; padding: 0 1vw; }
+      .card-foot { padding: 2.5vw 4vw; gap: 3vw; }
+      .bc-wrap svg { width: 20vw; height: 4vw; }
+      .purchased { font-size: 1.8vw; padding: 0.8vw 2.2vw; border-radius: 6vw; }
+      .stats { font-size: 2vw; }
+      .for-line { font-size: 1.8vw; }
+      .ingr { font-size: 1.6vw; }
+      .section-bg-num { font-size: 72vw; left: 8vw; }
+      .back-title { font-size: 8vw; }
+      .back-label, .back-sub { font-size: 2vw; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="canvas-wrap"></div>
+<div id="lateral"></div>
+<div id="receipt">
+  AI COWORK ® STUDIO<br>
+  <span class="div">————————————————</span><br>
+  ** AI PRODUCTS **<br>
+  <span class="div">————————————————</span><br>
+  <div id="rec-lines"><span class="rec-hint">ENTER TO DISCOVER</span></div>
+</div>
+
+<main>
+  <section class="hero">
+    <div class="hero-top">
+      <span class="hero-brand">AI COWORK ® VISUAL INTELLIGENCE</span>
+      <span class="hero-cta">EXPLORE PRODUCTS ↗</span>
+    </div>
+    <div class="hero-center">
+      <h1 class="hero-headline">
+        <span class="word-wrap"><span class="word-inner">Digital</span></span>
+        <span class="word-wrap"><span class="word-inner">Products</span></span>
+        <span class="word-wrap"><span class="word-inner">For AI</span></span>
+        <span class="word-wrap"><span class="word-inner">Builders</span></span>
+      </h1>
+      <p class="hero-sub" id="hero-sub">We craft AI-native collaborative experiences<br>for the modern builder</p>
+    </div>
+    <div class="hero-scroll">SCROLL TO DISCOVER</div>
+  </section>
+
+  <!-- ── INTRO / AI WORKFLOW ── -->
+  <section class="intro-section" id="intro">
+    <span class="intro-bg-glyph">∞</span>
+    <div class="intro-inner">
+
+      <div class="intro-header">
+        <span class="intro-index">§ 001 &nbsp;/&nbsp; INTRODUCTION</span>
+        <span class="intro-tag">AI WORKFLOW</span>
+      </div>
+
+      <h2 class="intro-headline">
+        <span class="iw"><span class="iw-inner">The New Way</span></span>
+        <span class="iw"><span class="iw-inner">Things Get</span></span>
+        <span class="iw"><span class="iw-inner">Built</span></span>
+      </h2>
+
+      <div class="intro-body-grid">
+        <p class="intro-body-text" id="intro-p1">
+          AI workflow is not automation for automation's sake. It is the art of composing intelligence — connecting the right models, tools, and agents to amplify what humans do best. Every step in the process becomes faster, sharper, and more intentional.
+        </p>
+        <p class="intro-body-text" id="intro-p2">
+          From idea to output, modern AI workflows collapse the distance between intention and execution. The gap between thinking and building has never been smaller. Teams that understand this ship faster, iterate better, and build products that feel alive.
+        </p>
+      </div>
+
+      <div class="intro-steps" id="intro-steps">
+        <div class="intro-step">
+          <div class="step-num">STEP 01</div>
+          <div class="step-arrow">↓</div>
+          <div class="step-name">Define</div>
+          <div class="step-desc">Articulate intent in natural language — what you want to build, solve, or create. Context is everything.</div>
+        </div>
+        <div class="intro-step">
+          <div class="step-num">STEP 02</div>
+          <div class="step-arrow">↓</div>
+          <div class="step-name">Orchestrate</div>
+          <div class="step-desc">Agents plan, delegate and execute — tools activated, APIs called, memory maintained across every cycle.</div>
+        </div>
+        <div class="intro-step">
+          <div class="step-num">STEP 03</div>
+          <div class="step-arrow">↓</div>
+          <div class="step-name">Iterate</div>
+          <div class="step-desc">Human and machine refine together. Feedback loops that get smarter, outputs that keep improving.</div>
+        </div>
+        <div class="intro-step">
+          <div class="step-num">STEP 04</div>
+          <div class="step-arrow">↓</div>
+          <div class="step-name">Ship</div>
+          <div class="step-desc">Deploy at the speed of thought — production-ready output, not prototypes. No waiting, no friction.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SECTION 1 ── -->
+  <section class="section" id="s1">
+    <span class="section-bg-num">1</span>
+    <div class="card-wrap">
+      <div class="card-flip" id="card1" data-work="work1.html">
+        <div class="card-front-face">
+          <div class="card">
+            <span class="side-label l">BUILT FOR BUILDERS</span>
+            <div class="card-num"><span class="num-inner">#01</span></div>
+            <div class="card-title"><span class="title-inner">AI Workspace<br>Infrastructure</span></div>
+            <div class="card-body"></div>
+            <div class="card-foot">
+              <div class="bc-wrap">
+                <svg id="bc1" xmlns="http://www.w3.org/2000/svg"></svg>
+                <span class="purchased">PURCHASED</span>
+              </div>
+              <div class="stats">
+                <div class="for-line">FOR &nbsp; 1 WORKSPACE</div>
+                <div class="stat"><span class="k">SPEED</span><span class="v">98%</span></div>
+                <div class="stat"><span class="k">RELIABILITY</span><span class="v">99%</span></div>
+                <div class="stat"><span class="k">AI NATIVE</span><span class="v">100%</span></div>
+                <div class="stat"><span class="k">COLLABORATION</span><span class="v">95%</span></div>
+                <div class="stat"><span class="k">BORING TOOLS</span><span class="v">0%</span></div>
+                <div class="ingr">Ingredients: Real-time sync, AI agents,<br>collaborative canvas, smart docs<br>* No vendor lock-in.</div>
+              </div>
+            </div>
+            <span class="side-label r">AI WORKSPACE INFRASTRUCTURE</span>
+          </div>
+        </div>
+        <div class="card-back-face">
+          <div class="back-label">Opening Project</div>
+          <div class="back-title">AI Workspace<br>Infrastructure</div>
+          <div class="back-sub">Loading experience...</div>
+          <div class="back-bar" id="bar1"></div>
+          <div class="back-bignum">#01</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2 ── -->
+  <section class="section" id="s2">
+    <span class="section-bg-num">2</span>
+    <div class="card-wrap">
+      <div class="card-flip" id="card2" data-work="work1.html">
+        <div class="card-front-face">
+          <div class="card">
+            <span class="side-label l">AUTOMATE EVERYTHING</span>
+            <div class="card-num"><span class="num-inner">#02</span></div>
+            <div class="card-title"><span class="title-inner">AI Agent<br>Workflows</span></div>
+            <div class="card-body"></div>
+            <div class="card-foot">
+              <div class="bc-wrap">
+                <svg id="bc2" xmlns="http://www.w3.org/2000/svg"></svg>
+                <span class="purchased">PURCHASED</span>
+              </div>
+              <div class="stats">
+                <div class="for-line">FOR &nbsp; UNLIMITED AGENTS</div>
+                <div class="stat"><span class="k">AUTONOMY</span><span class="v">92%</span></div>
+                <div class="stat"><span class="k">ACCURACY</span><span class="v">94%</span></div>
+                <div class="stat"><span class="k">THROUGHPUT</span><span class="v">97%</span></div>
+                <div class="stat"><span class="k">CREATIVITY</span><span class="v">89%</span></div>
+                <div class="stat"><span class="k">MANUAL WORK</span><span class="v">5%</span></div>
+                <div class="ingr">Ingredients: LLM pipelines, tool use,<br>memory, multi-agent coordination<br>* May contain traces of magic.</div>
+              </div>
+            </div>
+            <span class="side-label r">AI AGENT WORKFLOWS</span>
+          </div>
+        </div>
+        <div class="card-back-face">
+          <div class="back-label">Opening Project</div>
+          <div class="back-title">AI Agent<br>Workflows</div>
+          <div class="back-sub">Loading experience...</div>
+          <div class="back-bar" id="bar2"></div>
+          <div class="back-bignum">#02</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3 ── -->
+  <section class="section" id="s3">
+    <span class="section-bg-num">3</span>
+    <div class="card-wrap">
+      <div class="card-flip" id="card3" data-work="work1.html">
+        <div class="card-front-face">
+          <div class="card">
+            <span class="side-label l">THINK TOGETHER</span>
+            <div class="card-num"><span class="num-inner">#03</span></div>
+            <div class="card-title"><span class="title-inner">Realtime<br>Collaboration</span></div>
+            <div class="card-body"></div>
+            <div class="card-foot">
+              <div class="bc-wrap">
+                <svg id="bc3" xmlns="http://www.w3.org/2000/svg"></svg>
+                <span class="purchased">PURCHASED</span>
+              </div>
+              <div class="stats">
+                <div class="for-line">FOR &nbsp; YOUR WHOLE TEAM</div>
+                <div class="stat"><span class="k">SYNC SPEED</span><span class="v">&lt;50ms</span></div>
+                <div class="stat"><span class="k">UPTIME</span><span class="v">99.9%</span></div>
+                <div class="stat"><span class="k">INTEGRATIONS</span><span class="v">50+</span></div>
+                <div class="stat"><span class="k">LATENCY</span><span class="v">LOW</span></div>
+                <div class="stat"><span class="k">FRICTION</span><span class="v">0%</span></div>
+                <div class="ingr">Ingredients: WebSocket, CRDT sync,<br>presence indicators, shared context<br>* Best consumed with coffee.</div>
+              </div>
+            </div>
+            <span class="side-label r">REALTIME COLLABORATION</span>
+          </div>
+        </div>
+        <div class="card-back-face">
+          <div class="back-label">Opening Project</div>
+          <div class="back-title">Realtime<br>Collaboration</div>
+          <div class="back-sub">Loading experience...</div>
+          <div class="back-bar" id="bar3"></div>
+          <div class="back-bignum">#03</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger)
+
+// ── BARCODE ──────────────────────────────────────────────────
+function makeBarcode(id, seed) {
+  const el = document.getElementById(id); if (!el) return
+  const rng = s => { const x = Math.sin(s)*43758.5453; return x-Math.floor(x) }
+  let rects='', x=0
+  const bar = w => { rects+=`<rect x="${x.toFixed(2)}" y="0" width="${Math.max(0.5,w).toFixed(2)}" height="100"/>`; x+=w }
+  const gap = w => { x+=w }
+  bar(1.5);gap(1);bar(0.8);gap(1);bar(1.5);gap(2)
+  for(let i=0;i<26;i++){bar(rng(seed*137+i*31)*1.8+0.6);gap(rng(seed*71+i*17)*1.2+0.5)}
+  gap(1);bar(1.5);gap(1);bar(0.8);gap(1);bar(1.5)
+  el.setAttribute('viewBox',`0 0 ${Math.ceil(x)} 100`)
+  el.innerHTML=`<g fill="#141414">${rects}</g>`
+}
+makeBarcode('bc1',1); makeBarcode('bc2',2); makeBarcode('bc3',3)
+
+// ── TEXT HELPERS ─────────────────────────────────────────────
+function buildCharSplit(el) {
+  const text = el.textContent.trim()
+  el.innerHTML = [...text].map(c =>
+    c===' ' ? '<span style="display:inline-block;width:0.3em">&nbsp;</span>'
+    : `<span class="char-wrap"><span class="char-inner">${c}</span></span>`
+  ).join('')
+  return el.querySelectorAll('.char-inner')
+}
+function charsIn(chars,delay=0){gsap.fromTo(chars,{yPercent:110},{yPercent:0,duration:0.65,stagger:0.028,delay,ease:'power3.out'})}
+function charsOut(chars,delay=0,cb){gsap.to(chars,{yPercent:-110,duration:0.45,stagger:0.018,delay,ease:'power2.in',onComplete:cb})}
+
+const lateralEl = document.getElementById('lateral')
+lateralEl.textContent = 'AI COWORK'
+const initChars = buildCharSplit(lateralEl)
+gsap.set(initChars,{yPercent:110})
+gsap.to(initChars,{yPercent:0,duration:0.7,stagger:0.03,delay:0.4,ease:'power3.out'})
+
+function animateLateral(newText){
+  const cur=lateralEl.querySelectorAll('.char-inner')
+  charsOut(cur,0,()=>{lateralEl.textContent=newText;const next=buildCharSplit(lateralEl);gsap.set(next,{yPercent:110});charsIn(next)})
+}
+
+document.querySelectorAll('.hero-headline .word-inner').forEach((el,i)=>{
+  gsap.fromTo(el,{yPercent:105},{yPercent:0,duration:0.9,delay:0.1+i*0.1,ease:'power4.out'})
+})
+gsap.fromTo('#hero-sub',{opacity:0,y:10},{opacity:0.5,y:0,duration:0.7,delay:0.6,ease:'power3.out'})
+
+// ── INTRO SECTION ANIMATIONS ─────────────────────────────
+// Headline words slide up when section enters
+ScrollTrigger.create({
+  trigger:'#intro', start:'top 75%',
+  onEnter: () => {
+    document.querySelectorAll('#intro .iw-inner').forEach((el,i)=>{
+      gsap.fromTo(el,{yPercent:105},{yPercent:0,duration:0.85,delay:i*0.12,ease:'power4.out'})
+    })
+    // Body paragraphs fade + rise
+    gsap.to('#intro-p1',{opacity:0.70,y:0,duration:0.7,delay:0.35,ease:'power3.out',from:{opacity:0,y:18}})
+    gsap.to('#intro-p2',{opacity:0.70,y:0,duration:0.7,delay:0.52,ease:'power3.out',from:{opacity:0,y:18}})
+    // Step boxes stagger in
+    gsap.to('#intro-steps .intro-step',{
+      opacity:1, y:0, duration:0.55, stagger:0.1, delay:0.55, ease:'power3.out'
+    })
+  }
+})
+
+
+// ── PARALLAX — section bg numbers + intro glyph move at 80% scroll speed ──
+document.querySelectorAll('.section-bg-num').forEach(el => {
+  gsap.fromTo(el,
+    { yPercent: 9 },
+    { yPercent: -9, ease: 'none',
+      scrollTrigger: { trigger: el.closest('.section'), start: 'top bottom', end: 'bottom top', scrub: true }
+    }
+  )
+})
+gsap.fromTo('.intro-bg-glyph',
+  { yPercent: 6 },
+  { yPercent: -6, ease: 'none',
+    scrollTrigger: { trigger: '#intro', start: 'top bottom', end: 'bottom top', scrub: true }
+  }
+)
+// Intro headline moves slightly slower — creates foreground vs background depth
+gsap.fromTo('.intro-headline',
+  { yPercent: 2 },
+  { yPercent: -4, ease: 'none',
+    scrollTrigger: { trigger: '#intro', start: 'top bottom', end: 'bottom top', scrub: true }
+  }
+)
+
+
+// ════════════════════════════════════════════════════════════
+// THREE.JS — single scene: hero orbital + service section knots
+// ════════════════════════════════════════════════════════════
+const wrap = document.getElementById('canvas-wrap')
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, preserveDrawingBuffer:true})
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
+renderer.setSize(window.innerWidth, window.innerHeight)
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 1.4
+wrap.appendChild(renderer.domElement)
+
+const scene = new THREE.Scene()
+
+// Camera: 30° top-down for hero orbital view
+// tan(30°) = 0.577 → y=5, z=8.66
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 100)
+camera.position.set(0, 5.0, 8.66)
+camera.lookAt(0, 0, 0)
+
+// ── ENV MAP ──
+const envC = document.createElement('canvas'); envC.width=1024; envC.height=512
+const ec = envC.getContext('2d')
+const baseG = ec.createLinearGradient(0,0,0,512)
+baseG.addColorStop(0,'#e4e8f0'); baseG.addColorStop(0.25,'#b8bcc8')
+baseG.addColorStop(0.55,'#787888'); baseG.addColorStop(0.75,'#909098'); baseG.addColorStop(1,'#c8d0e8')
+ec.fillStyle=baseG; ec.fillRect(0,0,1024,512)
+const topK=ec.createRadialGradient(512,0,0,512,0,280)
+topK.addColorStop(0,'rgba(255,255,248,1)'); topK.addColorStop(0.4,'rgba(255,248,220,0.85)'); topK.addColorStop(1,'rgba(255,248,220,0)')
+ec.fillStyle=topK; ec.fillRect(0,0,1024,512)
+const botR=ec.createRadialGradient(512,512,0,512,512,220)
+botR.addColorStop(0,'rgba(200,215,255,0.9)'); botR.addColorStop(1,'rgba(180,200,255,0)')
+ec.fillStyle=botR; ec.fillRect(0,0,1024,512)
+
+const envTex=new THREE.CanvasTexture(envC); envTex.mapping=THREE.EquirectangularReflectionMapping
+const pmrem=new THREE.PMREMGenerator(renderer); pmrem.compileEquirectangularShader()
+scene.environment=pmrem.fromEquirectangular(envTex).texture
+pmrem.dispose(); envTex.dispose()
+
+// ── LIGHTING ──
+scene.add(new THREE.AmbientLight(0xffffff,0.25))
+const kL=new THREE.DirectionalLight(0xfff8ee,4.0); kL.position.set(1,8,3); scene.add(kL)
+const kL2=new THREE.DirectionalLight(0xffffff,1.5); kL2.position.set(-3,5,4); scene.add(kL2)
+const bL=new THREE.DirectionalLight(0xb8ccff,2.0); bL.position.set(0,-7,2); scene.add(bL)
+const rL=new THREE.DirectionalLight(0xdde8ff,0.8); rL.position.set(0,1,-5); scene.add(rL)
+
+// ── METAL MATERIAL ──
+const metalMat = new THREE.MeshStandardMaterial({
+  color:0xb0b4c4, metalness:1.0, roughness:0.08, envMapIntensity:3.5
+})
+
+// ── FALLBACK GEOMETRIES ──
+const fallbackGeos = [
+  new THREE.TorusKnotGeometry(0.75,0.26,200,24,2,3),
+  new THREE.TorusKnotGeometry(0.70,0.24,200,24,3,5),
+  new THREE.TorusKnotGeometry(0.78,0.22,200,24,5,3),
+]
+
+// ── KNOT GROUPS: outer=orbit/position, inner=self-spin ──
+const knotGroups = []  // outer group
+const knotMeshes = []  // inner group (self-spin)
+
+const gltfLoader = typeof THREE.GLTFLoader !== 'undefined' ? new THREE.GLTFLoader() : null
+
+function loadKnot(i, onReady) {
+  const outer = new THREE.Group()
+  const inner = new THREE.Group()
+  outer.add(inner)
+
+  function useFallback() {
+    inner.add(new THREE.Mesh(fallbackGeos[i], metalMat.clone()))
+    onReady(outer, inner)
+  }
+
+  if (gltfLoader) {
+    gltfLoader.load(`./models/hero${i+1}.glb`, (gltf) => {
+      const box=new THREE.Box3().setFromObject(gltf.scene)
+      const ctr=box.getCenter(new THREE.Vector3()); const sz=box.getSize(new THREE.Vector3())
+      gltf.scene.position.sub(ctr); gltf.scene.scale.setScalar(1.3/Math.max(sz.x,sz.y,sz.z))
+      gltf.scene.traverse(c=>{if(c.isMesh)c.material=metalMat.clone()})
+      inner.add(gltf.scene); onReady(outer,inner)
+    }, undefined, useFallback)
+  } else { useFallback() }
+}
+
+let loadedCount = 0
+for (let i=0; i<3; i++) {
+  loadKnot(i, (outer, inner) => {
+    outer.scale.setScalar(0.001)
+    outer.position.set(0,0,0)
+    scene.add(outer)
+    knotGroups.push(outer)
+    knotMeshes.push(inner)
+    loadedCount++
+    if (loadedCount===3) heroIntro()
+  })
+}
+
+// ── HERO INTRO: scale in while orbiting ──
+function heroIntro() {
+  const hs = isMob() ? 0.55 : 0.78
+  knotGroups.forEach((g,i)=>{
+    gsap.to(g.scale,{x:hs,y:hs,z:hs, duration:2.0, delay:0.6+i*0.25, ease:'power3.out'})
+  })
+}
+
+
+// ── ORBITAL CONSTANTS ──
+// Hero: 3 objects evenly at 120° on a circle, orbit center slightly right
+const ORBIT_R     = { desk:2.3, mob:1.0 }
+const ORBIT_SPEED = 0.22          // rad/s
+const ORBIT_INIT  = [0, Math.PI*2/3, Math.PI*4/3]   // 0°, 120°, 240°
+const ORBIT_CX    = 0.8           // orbit center X offset (shifts ring right of headline)
+
+// Service mode: knot floats on LEFT of card (card is on right)
+// In 3D space with 30° camera, x≈-2.2 projects to left ~40% of viewport
+const SVC_X = { desk:-2.2, mob:-0.8 }
+const SVC_SCALE = { desk:0.85, mob:0.58 }
+
+function isMob()   { return window.innerWidth < 769 }
+function svcX()    { return isMob() ? SVC_X.mob    : SVC_X.desk    }
+function svcScale(){ return isMob() ? SVC_SCALE.mob : SVC_SCALE.desk }
+function orbitR()  { return isMob() ? ORBIT_R.mob   : ORBIT_R.desk  }
+
+
+// ── MOUSE ──
+const mouse={x:0,y:0,lx:0,ly:0}
+window.addEventListener('mousemove',e=>{
+  mouse.x=(e.clientX/window.innerWidth-0.5)*2
+  mouse.y=(e.clientY/window.innerHeight-0.5)*2
+})
+
+// ── MODE & SCROLL ──
+let mode = 'hero'       // 'hero' | 'service'
+let current = -1
+let heroScrollProg = 0
+
+let heroInView = true   // false once user scrolls hero fully off-screen
+
+ScrollTrigger.create({
+  trigger:'.hero', start:'top top', end:'bottom top', scrub:true,
+  onUpdate:    self  => { heroScrollProg = self.progress },
+  // Hero scrolled completely away → hide knots immediately
+  onLeave:     ()    => {
+    heroInView = false
+    knotGroups.forEach(g => gsap.to(g.scale,{x:0.001,y:0.001,z:0.001,duration:0.35,ease:'power2.in',overwrite:true}))
+  },
+  // Hero back in view (scrolling up) → restore orbital knots
+  onEnterBack: ()    => {
+    heroInView = true
+    heroScrollProg = 0
+    mode = 'hero'
+    const hs = isMob() ? 0.55 : 0.78
+    knotGroups.forEach((g,i) => {
+      gsap.to(g.scale,{x:hs,y:hs,z:hs,duration:0.8,delay:i*0.10,ease:'back.out(1.4)',overwrite:true})
+    })
+  }
+})
+
+const recLinesEl = document.getElementById('rec-lines')
+const cfg=[
+  {lat:'WORKSPACE', item:'WORKSPACE INFRA  ×1', ref:'REF: AIC-0001'},
+  {lat:'AI AGENTS', item:'AI AGENTS        ×1', ref:'REF: AIC-0002'},
+  {lat:'REALTIME',  item:'COLLABORATION    ×1', ref:'REF: AIC-0003'},
+]
+
+// Receipt accumulation — items print and stay (never erased)
+const printedItems = new Set()
+function printReceiptLine(i) {
+  if (printedItems.has(i)) return
+  printedItems.add(i)
+  // Remove the "ENTER TO DISCOVER" hint on first real item
+  if (printedItems.size === 1) {
+    recLinesEl.innerHTML = ''
+  }
+  const line = document.createElement('div')
+  line.className = 'rec-line'
+  line.innerHTML = `${cfg[i].item}<br><span class="rec-ref-txt">${cfg[i].ref}</span>`
+  recLinesEl.appendChild(line)
+  // Let GSAP own the initial state so tween starts correctly
+  gsap.set(line, { opacity: 0, y: 5 })
+  gsap.to(line, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out', delay: 0.08 })
+}
+
+// ── KNOT SHOW/HIDE (service mode) ──
+// showKnot is the single source of truth: it INSTANTLY hides every other knot
+// before scaling in the intended one — prevents overlap on fast scroll.
+function showKnot(i){
+  // Kill any in-flight scale tweens and snap all OTHER knots to zero immediately
+  knotGroups.forEach((g,j) => {
+    if(j!==i){
+      gsap.killTweensOf(g.scale)
+      gsap.set(g.scale,{x:0.001,y:0.001,z:0.001})
+    }
+  })
+  const g=knotGroups[i]; const ss=svcScale(); const tx=svcX()
+  gsap.killTweensOf(g.scale)
+  gsap.set(g.position,{x:tx,y:0,z:0})
+  gsap.to(knotMeshes[i].rotation,{y:knotMeshes[i].rotation.y+Math.PI*1.5,duration:1.2,ease:'power2.out',overwrite:true})
+  gsap.to(g.scale,{x:ss,y:ss,z:ss,duration:1.1,ease:'back.out(1.5)',overwrite:true})
+}
+function hideKnot(i){
+  gsap.killTweensOf(knotGroups[i].scale)
+  gsap.to(knotGroups[i].scale,{x:0.001,y:0.001,z:0.001,duration:0.4,ease:'power2.in',overwrite:true})
+}
+
+// ── ENTER / LEAVE ──
+function enter(i){
+  if(current===i)return
+  current=i
+  const card=document.getElementById(`card${i+1}`)
+
+  // Card elastic bounce-in
+  gsap.fromTo(card,{scale:0.8,x:55,opacity:0},{scale:1,x:0,opacity:1,duration:1.1,ease:'elastic.out(1,0.62)',overwrite:true})
+  gsap.fromTo(card.querySelector('.num-inner'),  {yPercent:100},{yPercent:0,duration:0.55,delay:0.08,ease:'power3.out'})
+  gsap.fromTo(card.querySelector('.title-inner'),{yPercent:100},{yPercent:0,duration:0.55,delay:0.15,ease:'power3.out'})
+  gsap.fromTo(card.querySelectorAll('.stat'),{x:12,opacity:0},{x:0,opacity:1,duration:0.4,stagger:0.05,delay:0.3,ease:'power2.out'})
+
+  animateLateral(cfg[i].lat)
+  printReceiptLine(i)
+
+  // 3D: showKnot handles hiding all others instantly — safe at any scroll speed
+  if(mode==='hero') mode='service'
+  showKnot(i)
+}
+function leave(i){
+  if(current!==i)return; current=-1
+  const card=document.getElementById(`card${i+1}`)
+  gsap.to(card,{scale:0.88,x:-45,opacity:0,duration:0.42,ease:'power2.in',overwrite:true})
+  animateLateral('AI COWORK')
+  hideKnot(i)
+}
+function returnToHero(){
+  // Only set state — hero onEnterBack handles re-showing the knots
+  // (knots stay hidden while user is still in the intro section)
+  mode='hero'; current=-1
+}
+
+;[1,2,3].forEach((n,i)=>{
+  ScrollTrigger.create({
+    trigger:`#s${n}`, start:'top 60%', end:'bottom 40%',
+    onEnter:     ()=>enter(i),
+    onEnterBack: ()=>enter(i),
+    onLeave:     ()=>leave(i),
+    onLeaveBack: ()=>{leave(i);if(i===0)returnToHero()},
+  })
+})
+
+
+// ════════════════════════════════════════════════════════════
+// CARD INTERACTIONS — HOVER SHAKE + CLICK FLIP → REDIRECT
+// ════════════════════════════════════════════════════════════
+document.querySelectorAll('.card-flip').forEach(card=>{
+
+  // Hover: soft micro-shake
+  card.addEventListener('mouseenter',()=>{
+    // Don't shake if already flipped (rotateY near 180)
+    const ry = gsap.getProperty(card,'rotateY') || 0
+    if(Math.abs(ry)>90)return
+    gsap.killTweensOf(card,{x:true,rotation:true})
+    gsap.to(card,{
+      keyframes:[
+        {x:-2, rotation:-0.25, duration:0.10},
+        {x: 2, rotation: 0.25, duration:0.10},
+        {x:-1, rotation:-0.15, duration:0.10},
+        {x: 0, rotation: 0,    duration:0.09},
+      ], ease:'none'
+    })
+  })
+
+  card.addEventListener('mouseleave',()=>{
+    const ry=gsap.getProperty(card,'rotateY')||0
+    if(Math.abs(ry)<90) gsap.to(card,{x:0,rotation:0,duration:0.3,ease:'power2.out'})
+  })
+
+  // Click: GSAP flip → loading bar → redirect
+  let flipping=false
+  card.addEventListener('click',()=>{
+    if(flipping)return; flipping=true
+    const workUrl=card.dataset.work||'work1.html'
+    const barEl=card.querySelector('.back-bar')
+
+    gsap.to(card,{
+      rotateY:180, duration:0.75, ease:'power2.inOut',
+      onComplete:()=>{
+        // Animate loading bar on the back face
+        gsap.to(barEl,{
+          width:'45%', duration:0.5, ease:'power2.out',
+          onComplete:()=>{ window.location.href=workUrl }
+        })
+      }
+    })
+  })
+})
+
+
+// ════════════════════════════════════════════════════════════
+// RENDER LOOP
+// ════════════════════════════════════════════════════════════
+const clock = new THREE.Clock()
+
+;(function loop(){
+  requestAnimationFrame(loop)
+  const t=clock.getElapsedTime()
+  mouse.lx+=(mouse.x-mouse.lx)*0.04
+  mouse.ly+=(mouse.y-mouse.ly)*0.04
+
+  if(mode==='hero' && heroInView){
+    // ── Planetary orbital in XZ plane, camera looks down 30° ──
+    const R=orbitR(); const exitY=heroScrollProg*7.0
+
+    knotGroups.forEach((g,i)=>{
+      // Self-spin
+      knotMeshes[i].rotation.x+=0.003+i*0.0008
+      knotMeshes[i].rotation.y+=0.006-i*0.0008
+      // Orbit around (ORBIT_CX, 0, 0) — shifted right so it doesn't cover headline
+      const angle=ORBIT_INIT[i]+t*ORBIT_SPEED
+      g.position.x=ORBIT_CX+R*Math.cos(angle)
+      g.position.z=R*Math.sin(angle)
+      g.position.y=exitY   // scroll pushes entire ring upward
+      // Gentle mouse tilt
+      g.rotation.x+=(mouse.ly*0.04-g.rotation.x)*0.06
+      g.rotation.y+=(mouse.lx*0.04-g.rotation.y)*0.06
+    })
+  } else {
+    // ── Service mode: one knot on the LEFT of screen ──
+    knotGroups.forEach((g,i)=>{
+      if(g.scale.x<0.01)return
+      knotMeshes[i].rotation.x+=0.004
+      knotMeshes[i].rotation.y+=0.007
+      if(i===current){
+        g.position.y=Math.sin(t*0.35+i*1.7)*0.09  // gentle float
+        g.position.x=svcX()  // hold LEFT position
+        g.position.z=0
+        // Mouse tilt follows cursor
+        g.rotation.x+=(mouse.ly*0.12-g.rotation.x)*0.06
+        g.rotation.y+=(mouse.lx*0.12-g.rotation.y)*0.06
+      }
+    })
+  }
+
+  renderer.render(scene,camera)
+})()
+
+// ── RESIZE ──
+window.addEventListener('resize',()=>{
+  const w=window.innerWidth,h=window.innerHeight
+  renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix()
+})
+</script>
+</body>
+</html>

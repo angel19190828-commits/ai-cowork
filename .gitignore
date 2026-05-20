@@ -1,0 +1,10 @@
+# Separate project — keep out of this repo
+portfolio/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
