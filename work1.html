@@ -108,7 +108,7 @@
       letter-spacing: -0.025em; line-height: 1.05; margin-bottom: 2vw;
     }
     .overview-body {
-      font-family: 'Inter', sans-serif; font-weight: 300;
+      font-family: 'Inter', sans-serif; font-weight: 400;
       font-size: 0.95vw; line-height: 1.75; opacity: 0.65;
     }
     .overview-body p + p { margin-top: 1em; }
@@ -240,6 +240,17 @@
     .cam-status.denied { color: #d07070; opacity: 0.75; }
     @keyframes blink { 0%,100%{opacity:0.85} 50%{opacity:0.25} }
     .cam-status.live::after { content: ' ●'; animation: blink 1.5s ease-in-out infinite; }
+    .cam-help {
+      margin-top: 0.65vw;
+      font-family: 'PT Mono', monospace;
+      font-size: 0.48vw;
+      line-height: 1.55;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(240,240,238,0.42);
+      display: none;
+    }
+    .cam-help.on { display: block; }
 
     /* CTA */
     .work-cta-row {
@@ -294,6 +305,7 @@
       .cam-hint { font-size: 1.8vw; }
       .cam-btn { font-size: 2vw; padding: 1.5vw 3.5vw; border-radius: 6vw; }
       .cam-status { font-size: 1.7vw; }
+      .cam-help { font-size: 1.7vw; margin-top: 2vw; }
       .cam-corner { width: 3.5vw; height: 3.5vw; }
       .cam-corner.tl { top: 2vw; left: 2vw; }
       .cam-corner.tr { top: 2vw; right: 2vw; }
@@ -427,14 +439,17 @@
   </div>
 
   <div class="section-rule"></div>
-  <div class="cam-label">Live Demo · Camera Capture</div>
+  <div class="cam-label">Live Demo · Hand Tracking</div>
   <div class="cam-section">
     <div class="cam-frame" id="cam-frame">
       <div class="cam-corner tl"></div>
       <div class="cam-corner tr"></div>
       <div class="cam-corner bl"></div>
       <div class="cam-corner br"></div>
-      <video id="cam-video" autoplay playsinline muted></video>
+      <!-- hidden video — input source for MediaPipe -->
+      <video id="cam-video" autoplay playsinline muted style="display:none"></video>
+      <!-- main display: composited video + hand + PNG -->
+      <canvas id="cam-canvas" style="position:absolute;inset:0;width:100%;height:100%;display:none;"></canvas>
       <img id="cam-snap-img" alt="Snapshot">
       <div class="cam-placeholder" id="cam-placeholder">
         <div class="cam-icon">◎</div>
@@ -443,12 +458,17 @@
     </div>
     <div class="cam-controls">
       <button class="cam-btn" id="btn-connect">Connect Camera</button>
+      <label class="cam-btn" style="cursor:pointer;opacity:0.55;">
+        Upload PNG
+        <input type="file" id="png-upload" accept="image/png,image/gif,image/webp" style="display:none">
+      </label>
       <button class="cam-btn" id="btn-capture" disabled>Capture</button>
       <button class="cam-btn cam-btn-del" id="btn-trash" disabled>
         <span class="cam-del-arrow">↓</span>Clear
       </button>
       <span class="cam-status" id="cam-status">Awaiting Auth</span>
     </div>
+    <div class="cam-help" id="cam-help"></div>
   </div>
 
   <div class="work-cta-row">
@@ -462,6 +482,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 <script>
 // ── ENTRANCE ANIMATIONS ──
 window.addEventListener('DOMContentLoaded', () => {
@@ -470,7 +491,7 @@ window.addEventListener('DOMContentLoaded', () => {
   gsap.fromTo('.work-meta',  {opacity:0, y:20}, {opacity:1, y:0, duration:0.8, delay:0.9, ease:'power3.out'})
 })
 
-// ── BACKGROUND: subtle animated particle field ──
+// ── BACKGROUND: LineWaves shader field ──
 const canvas = document.getElementById('work-canvas')
 
 // Detect WebGL support using a throwaway canvas (avoids locking our canvas to a non-Three context)
@@ -482,120 +503,440 @@ const hasWebGL = (() => {
 if (!hasWebGL) {
   canvas.style.display = 'none'
 } else {
-  // Simple Three.js background — slow drifting particles
-  const scene  = new THREE.Scene()
-  const cam    = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100)
-  const rend   = new THREE.WebGLRenderer({canvas, antialias:false, alpha:true})
-  rend.setPixelRatio(1)  // keep lightweight
-  rend.setSize(window.innerWidth, window.innerHeight)
-  cam.position.set(0, 0, 5)
-
-  // Floating particles
-  const pts = 320
-  const pos = new Float32Array(pts * 3)
-  for (let i = 0; i < pts; i++) {
-    pos[i*3]   = (Math.random()-0.5)*22
-    pos[i*3+1] = (Math.random()-0.5)*14
-    pos[i*3+2] = (Math.random()-0.5)*10
+  // React Bits LineWaves effect, ported into the existing static Three.js page.
+  const lineWaves = {
+    speed: 0.3,
+    innerLineCount: 32.0,
+    outerLineCount: 36.0,
+    warpIntensity: 1.0,
+    rotation: -45,
+    edgeFadeWidth: 0.0,
+    colorCycleSpeed: 1.0,
+    brightness: 0.2,
+    color1: new THREE.Color('#ffffff'),
+    color2: new THREE.Color('#ffffff'),
+    color3: new THREE.Color('#ffffff'),
+    enableMouseInteraction: true,
+    mouseInfluence: 2.0
   }
-  const geo = new THREE.BufferGeometry()
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-  const mat = new THREE.PointsMaterial({color:0x8890a8, size:0.04, transparent:true, opacity:0.45})
-  scene.add(new THREE.Points(geo, mat))
+  const waveMouse = {
+    x: 0.5,
+    y: 0.5,
+    tx: 0.5,
+    ty: 0.5
+  }
 
-  // Slow rotation
+  const scene = new THREE.Scene()
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+  const rend = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true })
+  rend.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+  rend.setSize(window.innerWidth, window.innerHeight)
+
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    uniforms: {
+      uTime: { value: 0 },
+      uResolution: { value: new THREE.Vector3(canvas.width, canvas.height, canvas.width / canvas.height) },
+      uSpeed: { value: lineWaves.speed },
+      uInnerLines: { value: lineWaves.innerLineCount },
+      uOuterLines: { value: lineWaves.outerLineCount },
+      uWarpIntensity: { value: lineWaves.warpIntensity },
+      uRotation: { value: lineWaves.rotation * Math.PI / 180 },
+      uEdgeFadeWidth: { value: lineWaves.edgeFadeWidth },
+      uColorCycleSpeed: { value: lineWaves.colorCycleSpeed },
+      uBrightness: { value: lineWaves.brightness },
+      uColor1: { value: lineWaves.color1 },
+      uColor2: { value: lineWaves.color2 },
+      uColor3: { value: lineWaves.color3 },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+      uMouseInfluence: { value: lineWaves.mouseInfluence },
+      uEnableMouse: { value: lineWaves.enableMouseInteraction }
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position.xy, 0.0, 1.0);
+      }
+    `,
+    fragmentShader: `
+      precision highp float;
+
+      uniform float uTime;
+      uniform vec3 uResolution;
+      uniform float uSpeed;
+      uniform float uInnerLines;
+      uniform float uOuterLines;
+      uniform float uWarpIntensity;
+      uniform float uRotation;
+      uniform float uEdgeFadeWidth;
+      uniform float uColorCycleSpeed;
+      uniform float uBrightness;
+      uniform vec3 uColor1;
+      uniform vec3 uColor2;
+      uniform vec3 uColor3;
+      uniform vec2 uMouse;
+      uniform float uMouseInfluence;
+      uniform bool uEnableMouse;
+
+      #define HALF_PI 1.5707963
+
+      float hashF(float n) {
+        return fract(sin(n * 127.1) * 43758.5453123);
+      }
+
+      float smoothNoise(float x) {
+        float i = floor(x);
+        float f = fract(x);
+        float u = f * f * (3.0 - 2.0 * f);
+        return mix(hashF(i), hashF(i + 1.0), u);
+      }
+
+      float displaceA(float coord, float t) {
+        float result = sin(coord * 2.123) * 0.2;
+        result += sin(coord * 3.234 + t * 4.345) * 0.1;
+        result += sin(coord * 0.589 + t * 0.934) * 0.5;
+        return result;
+      }
+
+      float displaceB(float coord, float t) {
+        float result = sin(coord * 1.345) * 0.3;
+        result += sin(coord * 2.734 + t * 3.345) * 0.2;
+        result += sin(coord * 0.189 + t * 0.934) * 0.3;
+        return result;
+      }
+
+      vec2 rotate2D(vec2 p, float angle) {
+        float c = cos(angle);
+        float s = sin(angle);
+        return vec2(p.x * c - p.y * s, p.x * s + p.y * c);
+      }
+
+      void main() {
+        vec2 coords = gl_FragCoord.xy / uResolution.xy;
+        coords = coords * 2.0 - 1.0;
+        coords.x *= uResolution.z;
+        coords = rotate2D(coords, uRotation);
+
+        float halfT = uTime * uSpeed * 0.5;
+        float fullT = uTime * uSpeed;
+
+        float mouseWarp = 0.0;
+        if (uEnableMouse) {
+          vec2 mPos = uMouse * 2.0 - 1.0;
+          mPos.x *= uResolution.z;
+          mPos = rotate2D(mPos, uRotation);
+          float mDist = length(coords - mPos);
+          mouseWarp = uMouseInfluence * exp(-mDist * mDist * 4.0);
+        }
+
+        float warpAx = coords.x + displaceA(coords.y, halfT) * uWarpIntensity + mouseWarp;
+        float warpAy = coords.y - displaceA(coords.x * cos(fullT) * 1.235, halfT) * uWarpIntensity;
+        float warpBx = coords.x + displaceB(coords.y, halfT) * uWarpIntensity + mouseWarp;
+        float warpBy = coords.y - displaceB(coords.x * sin(fullT) * 1.235, halfT) * uWarpIntensity;
+
+        vec2 fieldA = vec2(warpAx, warpAy);
+        vec2 fieldB = vec2(warpBx, warpBy);
+        vec2 blended = mix(fieldA, fieldB, mix(fieldA, fieldB, 0.5));
+
+        float fadeTop = smoothstep(uEdgeFadeWidth, uEdgeFadeWidth + 0.4, blended.y);
+        float fadeBottom = smoothstep(-uEdgeFadeWidth, -(uEdgeFadeWidth + 0.4), blended.y);
+        float vMask = 1.0 - max(fadeTop, fadeBottom);
+
+        float tileCount = mix(uOuterLines, uInnerLines, vMask);
+        float scaledY = blended.y * tileCount;
+        float nY = smoothNoise(abs(scaledY));
+
+        float ridge = pow(
+          step(abs(nY - blended.x) * 2.0, HALF_PI) * cos(2.0 * (nY - blended.x)),
+          5.0
+        );
+
+        float lines = 0.0;
+        for (float i = 1.0; i < 3.0; i += 1.0) {
+          lines += pow(max(fract(scaledY), fract(-scaledY)), i * 2.0);
+        }
+
+        float pattern = vMask * lines;
+        float cycleT = fullT * uColorCycleSpeed;
+        float rChannel = (pattern + lines * ridge) * (cos(blended.y + cycleT * 0.234) * 0.5 + 1.0);
+        float gChannel = (pattern + vMask * ridge) * (sin(blended.x + cycleT * 1.745) * 0.5 + 1.0);
+        float bChannel = (pattern + lines * ridge) * (cos(blended.x + cycleT * 0.534) * 0.5 + 1.0);
+
+        vec3 col = (rChannel * uColor1 + gChannel * uColor2 + bChannel * uColor3) * uBrightness;
+        float alpha = clamp(length(col), 0.0, 1.0);
+        gl_FragColor = vec4(col, alpha);
+      }
+    `
+  })
+
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat))
+
+  // Animate the shader and ease pointer input into the wave field.
   const clock = new THREE.Clock()
   ;(function tick() {
     requestAnimationFrame(tick)
-    const t = clock.getElapsedTime()
-    scene.rotation.y = t * 0.02
-    scene.rotation.x = Math.sin(t * 0.015) * 0.08
+    mat.uniforms.uTime.value = clock.getElapsedTime()
+    if (lineWaves.enableMouseInteraction) {
+      waveMouse.x += (waveMouse.tx - waveMouse.x) * 0.05
+      waveMouse.y += (waveMouse.ty - waveMouse.y) * 0.05
+      mat.uniforms.uMouse.value.set(waveMouse.x, waveMouse.y)
+    }
     rend.render(scene, cam)
   })()
 
   window.addEventListener('resize', () => {
-    rend.setSize(window.innerWidth, window.innerHeight)
-    cam.aspect = window.innerWidth/window.innerHeight
-    cam.updateProjectionMatrix()
+    const w = window.innerWidth
+    const h = window.innerHeight
+    rend.setSize(w, h)
+    mat.uniforms.uResolution.value.set(canvas.width, canvas.height, canvas.width / canvas.height)
+  })
+
+  window.addEventListener('mousemove', e => {
+    waveMouse.tx = e.clientX / window.innerWidth
+    waveMouse.ty = 1 - e.clientY / window.innerHeight
+  })
+
+  window.addEventListener('mouseleave', () => {
+    waveMouse.tx = 0.5
+    waveMouse.ty = 0.5
+  })
+
+  window.addEventListener('touchmove', e => {
+    if (!e.touches.length) return
+    waveMouse.tx = e.touches[0].clientX / window.innerWidth
+    waveMouse.ty = 1 - e.touches[0].clientY / window.innerHeight
+  }, { passive: true })
+
+  window.addEventListener('touchend', () => {
+    waveMouse.tx = 0.5
+    waveMouse.ty = 0.5
   })
 }
 
-// ── CAMERA DEMO ─────────────────────────────────────────────
+// ── CAMERA + HAND TRACKING ──────────────────────────────────
 const camVideo       = document.getElementById('cam-video')
+const camCanvas      = document.getElementById('cam-canvas')
+const camCtx         = camCanvas.getContext('2d')
 const camSnapImg     = document.getElementById('cam-snap-img')
 const camPlaceholder = document.getElementById('cam-placeholder')
 const btnConnect     = document.getElementById('btn-connect')
 const btnCapture     = document.getElementById('btn-capture')
 const btnTrash       = document.getElementById('btn-trash')
 const camStatusEl    = document.getElementById('cam-status')
-let camStream = null
+const camHelpEl      = document.getElementById('cam-help')
+const pngUpload      = document.getElementById('png-upload')
 
-function setCamStatus(text, cls) {
-  camStatusEl.textContent = text
-  camStatusEl.className = 'cam-status' + (cls ? ' ' + cls : '')
+let camStream    = null
+let handTracker  = null
+let rafId        = null
+let userPng      = null   // user-uploaded PNG
+let handPts      = null   // latest hand landmarks
+
+// ── Default PNG: targeting reticle (used until user uploads one)
+function makeDefaultPng() {
+  const c = document.createElement('canvas'); c.width = 96; c.height = 96
+  const x = c.getContext('2d')
+  x.strokeStyle = 'rgba(176,180,196,0.95)'; x.lineWidth = 1.5
+  x.beginPath(); x.arc(48,48,32,0,Math.PI*2); x.stroke()
+  x.beginPath(); x.arc(48,48,8,0,Math.PI*2);  x.stroke()
+  x.beginPath(); x.moveTo(48,10); x.lineTo(48,38); x.stroke()
+  x.beginPath(); x.moveTo(48,58); x.lineTo(48,86); x.stroke()
+  x.beginPath(); x.moveTo(10,48); x.lineTo(38,48); x.stroke()
+  x.beginPath(); x.moveTo(58,48); x.lineTo(86,48); x.stroke()
+  const img = new Image(); img.src = c.toDataURL(); return img
+}
+
+// ── Upload custom PNG
+pngUpload.addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return
+  const img = new Image()
+  img.onload = () => { userPng = img }
+  img.src = URL.createObjectURL(f)
+})
+
+function setCamStatus(t, cls) {
+  camStatusEl.textContent = t
+  camStatusEl.className = 'cam-status' + (cls ? ' '+cls : '')
+}
+function setCamHelp(t) {
+  camHelpEl.textContent = t || ''
+  camHelpEl.className = 'cam-help' + (t ? ' on' : '')
+}
+
+// ── Hand skeleton connections (MediaPipe 21-point model)
+const HAND_CONNECTIONS = [
+  [0,1],[1,2],[2,3],[3,4],
+  [0,5],[5,6],[6,7],[7,8],
+  [0,9],[9,10],[10,11],[11,12],
+  [0,13],[13,14],[14,15],[15,16],
+  [0,17],[17,18],[18,19],[19,20],
+  [5,9],[9,13],[13,17]
+]
+
+function drawFrame() {
+  const w = camCanvas.width, h = camCanvas.height
+  camCtx.clearRect(0,0,w,h)
+
+  // Draw mirrored video
+  camCtx.save()
+  camCtx.scale(-1,1)
+  camCtx.drawImage(camVideo,-w,0,w,h)
+  camCtx.restore()
+
+  if (!handPts) return
+
+  // Mirror x: MediaPipe x=0 is left of raw video; we display mirrored
+  const mx = l => (1 - l.x) * w
+  const my = l => l.y * h
+
+  // Skeleton lines
+  camCtx.strokeStyle = 'rgba(176,180,196,0.22)'
+  camCtx.lineWidth = 1.2
+  HAND_CONNECTIONS.forEach(([a,b]) => {
+    camCtx.beginPath()
+    camCtx.moveTo(mx(handPts[a]), my(handPts[a]))
+    camCtx.lineTo(mx(handPts[b]), my(handPts[b]))
+    camCtx.stroke()
+  })
+
+  // Landmark dots
+  camCtx.fillStyle = 'rgba(176,180,196,0.35)'
+  handPts.forEach(l => {
+    camCtx.beginPath(); camCtx.arc(mx(l),my(l),2.5,0,Math.PI*2); camCtx.fill()
+  })
+
+  // Index finger tip (landmark 8) drives the PNG
+  const tip   = handPts[8]
+  const thumb = handPts[4]
+  const px = mx(tip), py = my(tip)
+
+  // Pinch detection: thumb tip ↔ index tip distance
+  const pinchDist = Math.hypot((mx(thumb)-px), (my(thumb)-py))
+  const isPinching = pinchDist < w * 0.05
+
+  // PNG size: 11% of canvas width; shrinks slightly on pinch
+  const pngSize = w * (isPinching ? 0.085 : 0.11)
+  const img = userPng || makeDefaultPng()
+  camCtx.globalAlpha = isPinching ? 1.0 : 0.88
+  camCtx.drawImage(img, px - pngSize/2, py - pngSize/2, pngSize, pngSize)
+  camCtx.globalAlpha = 1
+
+  // Pinch ring indicator
+  if (isPinching) {
+    camCtx.strokeStyle = 'rgba(176,180,196,0.7)'
+    camCtx.lineWidth = 1.5
+    camCtx.beginPath(); camCtx.arc(px, py, pngSize*0.55, 0, Math.PI*2); camCtx.stroke()
+  }
+}
+
+// ── rAF render loop (sends frames to MediaPipe)
+async function renderLoop() {
+  if (!camStream || !handTracker) return
+  if (camVideo.readyState >= 2) {
+    await handTracker.send({ image: camVideo })
+  }
+  rafId = requestAnimationFrame(renderLoop)
 }
 
 async function startCam() {
   setCamStatus('Requesting auth…')
+  setCamHelp('')
   btnConnect.disabled = true
   try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw Object.assign(new Error('Camera API unavailable'), { name: 'NotSupportedError' })
+    }
     camStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+      video: { facingMode:'user', width:{ideal:1280}, height:{ideal:720} },
       audio: false
     })
     camVideo.srcObject = camStream
-    camVideo.style.display = 'block'
+    await new Promise(r => { camVideo.onloadedmetadata = r })
+    camVideo.play()
+
+    // Fit canvas to frame
+    const fr = document.getElementById('cam-frame')
+    camCanvas.width  = fr.clientWidth  * window.devicePixelRatio
+    camCanvas.height = fr.clientHeight * window.devicePixelRatio
+    camCtx.scale(window.devicePixelRatio, window.devicePixelRatio)
+    camCanvas.style.display = 'block'
     camPlaceholder.style.display = 'none'
+
+    // Set up MediaPipe Hands
+    setCamStatus('Loading hands…')
+    handTracker = new Hands({
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+    })
+    handTracker.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.72,
+      minTrackingConfidence: 0.5
+    })
+    handTracker.onResults(results => {
+      handPts = results.multiHandLandmarks?.[0] || null
+      drawFrame()
+    })
+    await handTracker.initialize()
+
+    rafId = requestAnimationFrame(renderLoop)
     btnConnect.textContent = 'Disconnect'
     btnConnect.disabled = false
     btnCapture.disabled = false
     setCamStatus('Live', 'live')
+    setCamHelp('')
+
   } catch(e) {
-    const msg = e.name === 'NotAllowedError' ? 'Permission Denied' :
-                e.name === 'NotFoundError'   ? 'No Camera Found'  : 'Error'
+    const msg = e.name==='NotAllowedError' ? 'Camera Blocked' :
+                e.name==='NotFoundError'   ? 'No Camera Found' :
+                e.name==='NotSupportedError' ? 'Camera Unsupported' : 'Camera Error'
     setCamStatus(msg, 'denied')
+    if (e.name === 'NotAllowedError') {
+      setCamHelp('Permission is blocked for this site. Click the camera icon in the address bar, choose Allow, then reload this page.')
+    } else if (e.name === 'NotFoundError') {
+      setCamHelp('No camera device was found. Check that your webcam is connected and not used by another app.')
+    } else if (e.name === 'NotSupportedError') {
+      setCamHelp('Camera access requires localhost, https, or a browser that supports getUserMedia.')
+    } else {
+      setCamHelp('Camera failed to start. Reload the page and try again.')
+    }
     btnConnect.disabled = false
   }
 }
 
 function stopCam() {
-  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null }
-  camVideo.srcObject = null; camVideo.style.display = 'none'
-  camSnapImg.src = '';        camSnapImg.style.display = 'none'
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null }
+  if (handTracker) { handTracker.close(); handTracker = null }
+  if (camStream) { camStream.getTracks().forEach(t=>t.stop()); camStream = null }
+  camVideo.srcObject = null
+  camCanvas.style.display = 'none'
+  camCtx.clearRect(0,0,camCanvas.width,camCanvas.height)
+  camSnapImg.src = ''; camSnapImg.style.display = 'none'
   camPlaceholder.style.display = 'flex'
   btnConnect.textContent = 'Connect Camera'
   btnCapture.disabled = true; btnTrash.disabled = true
+  handPts = null
   setCamStatus('Awaiting Auth')
+  setCamHelp('')
 }
 
-// Connect / Disconnect toggle
 btnConnect.addEventListener('click', () => camStream ? stopCam() : startCam())
 
-// Capture snapshot — mirrors the video to match the mirrored preview
+// Capture: snapshot of the composited canvas (video + hand + PNG)
 btnCapture.addEventListener('click', () => {
   if (!camStream) return
-  const c   = document.createElement('canvas')
-  c.width   = camVideo.videoWidth
-  c.height  = camVideo.videoHeight
-  const ctx = c.getContext('2d')
-  ctx.save(); ctx.scale(-1, 1); ctx.drawImage(camVideo, -c.width, 0); ctx.restore()
-  camSnapImg.src = c.toDataURL('image/jpeg', 0.92)
+  camSnapImg.src = camCanvas.toDataURL('image/jpeg', 0.92)
   camSnapImg.style.display = 'block'
-  camVideo.style.display   = 'none'
   btnTrash.disabled = false
   setCamStatus('Captured')
 })
 
-// Clear capture — ↓ arrow into trash, restores live feed if still connected
+// Clear: ↓ into trash — restores live feed
 btnTrash.addEventListener('click', () => {
   camSnapImg.src = ''; camSnapImg.style.display = 'none'
-  if (camStream) {
-    camVideo.style.display = 'block'
-    setCamStatus('Live', 'live')
-  } else {
-    camPlaceholder.style.display = 'flex'
-    setCamStatus('Awaiting Auth')
-  }
+  setCamStatus(camStream ? 'Live' : 'Awaiting Auth', camStream ? 'live' : '')
   btnTrash.disabled = true
 })
 </script>
