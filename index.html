@@ -59,7 +59,7 @@
     .hero-headline .word-wrap { display: block; overflow: hidden; line-height: 0.95; }
     .hero-headline .word-inner { display: block; }
     .hero-sub { margin-top: 2vw; font-family: 'PT Mono', monospace; font-size: 0.65vw; opacity: 0; letter-spacing: 0.08em; text-transform: uppercase; }
-    .hero-scroll { text-align: center; padding-bottom: 0.5vw; font-family: 'PT Mono', monospace; font-size: 0.58vw; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0.45; }
+    .hero-scroll { text-align: center; padding-bottom: 0.5vw; font-family: 'PT Mono', monospace; font-size: 0.58vw; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0; }
 
     /* ── SERVICE SECTIONS ── */
     .section {
@@ -67,7 +67,7 @@
       justify-content: flex-end; position: relative; overflow: hidden;
     }
     .section-bg-num {
-      position: absolute; left: 4vw; top: 50%; transform: translateY(-50%);
+      position: absolute; left: 4vw; top: 50%; transform: translateY(-51%);
       font-family: 'Inter', sans-serif; font-weight: 100; font-size: 44vw;
       line-height: 1; color: var(--ink); opacity: 0.035; z-index: -1;
       pointer-events: none; letter-spacing: -0.06em; user-select: none;
@@ -137,7 +137,7 @@
       width: 36vw;
       border: 1px solid var(--ink); border-radius: 0.45vw;
       background: rgba(244,242,239,0.92); backdrop-filter: blur(14px);
-      position: relative; overflow: visible;
+      position: relative; overflow: hidden;
     }
     .card-num {
       font-family: 'Inter', sans-serif; font-weight: 100;
@@ -152,15 +152,15 @@
       letter-spacing: -0.01em; line-height: 1.1; overflow: hidden;
     }
     .card-title .title-inner { display: block; }
-    .card-body { height: 8vw; }
+    .card-body { height: 8vw; position: relative; }
     .side-label {
       position: absolute; font-family: 'PT Mono', monospace;
-      font-size: 0.48vw; text-transform: uppercase; letter-spacing: 0.1em;
+      font-size: 0.42vw; text-transform: uppercase; letter-spacing: 0.08em;
       white-space: nowrap; writing-mode: vertical-rl;
-      top: 0; bottom: 0; display: flex; align-items: center; padding: 0 0.35vw;
+      top: 0; bottom: 0; display: flex; align-items: center; padding: 0 0.3vw;
     }
-    .side-label.r { right: 0; border-right: 1px solid var(--ink); }
-    .side-label.l { left: 0; border-left: 1px solid var(--ink); transform: rotate(180deg); }
+    .side-label.r { right: 0; border-right: 1px solid rgba(0,0,0,0.18); }
+    .side-label.l { left: 0; border-left: 1px solid rgba(0,0,0,0.18); transform: rotate(180deg); }
     .card-foot {
       border-top: 1px solid var(--ink); padding: 0.8vw 1.4vw;
       display: grid; grid-template-columns: auto 1fr; gap: 1.2vw; align-items: start;
@@ -299,7 +299,7 @@
       .card-num { font-size: 14vw; padding: 3vw 4vw 1.5vw; }
       .card-title { font-size: 5vw; padding: 2.5vw 4vw; }
       .card-body { height: 22vw; }
-      .side-label { font-size: 1.5vw; padding: 0 1vw; }
+      .side-label { font-size: 1.3vw; padding: 0 0.8vw; }
       .card-foot { padding: 2.5vw 4vw; gap: 3vw; }
       .bc-wrap svg { width: 20vw; height: 4vw; }
       .purchased { font-size: 1.8vw; padding: 0.8vw 2.2vw; border-radius: 6vw; }
@@ -404,10 +404,12 @@
       <div class="card-flip" id="card1" data-work="work1.html">
         <div class="card-front-face">
           <div class="card">
-            <span class="side-label l">BUILT FOR BUILDERS</span>
             <div class="card-num"><span class="num-inner">#01</span></div>
             <div class="card-title"><span class="title-inner">AI Workspace<br>Infrastructure</span></div>
-            <div class="card-body"></div>
+            <div class="card-body">
+              <span class="side-label l">BUILT FOR BUILDERS</span>
+              <span class="side-label r">AI WORKSPACE INFRASTRUCTURE</span>
+            </div>
             <div class="card-foot">
               <div class="bc-wrap">
                 <svg id="bc1" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -423,7 +425,6 @@
                 <div class="ingr">Ingredients: Real-time sync, AI agents,<br>collaborative canvas, smart docs<br>* No vendor lock-in.</div>
               </div>
             </div>
-            <span class="side-label r">AI WORKSPACE INFRASTRUCTURE</span>
           </div>
         </div>
         <div class="card-back-face">
@@ -444,10 +445,12 @@
       <div class="card-flip" id="card2" data-work="work1.html">
         <div class="card-front-face">
           <div class="card">
-            <span class="side-label l">AUTOMATE EVERYTHING</span>
             <div class="card-num"><span class="num-inner">#02</span></div>
             <div class="card-title"><span class="title-inner">AI Agent<br>Workflows</span></div>
-            <div class="card-body"></div>
+            <div class="card-body">
+              <span class="side-label l">AUTOMATE EVERYTHING</span>
+              <span class="side-label r">AI AGENT WORKFLOWS</span>
+            </div>
             <div class="card-foot">
               <div class="bc-wrap">
                 <svg id="bc2" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -463,7 +466,6 @@
                 <div class="ingr">Ingredients: LLM pipelines, tool use,<br>memory, multi-agent coordination<br>* May contain traces of magic.</div>
               </div>
             </div>
-            <span class="side-label r">AI AGENT WORKFLOWS</span>
           </div>
         </div>
         <div class="card-back-face">
@@ -484,10 +486,12 @@
       <div class="card-flip" id="card3" data-work="work1.html">
         <div class="card-front-face">
           <div class="card">
-            <span class="side-label l">THINK TOGETHER</span>
             <div class="card-num"><span class="num-inner">#03</span></div>
             <div class="card-title"><span class="title-inner">Realtime<br>Collaboration</span></div>
-            <div class="card-body"></div>
+            <div class="card-body">
+              <span class="side-label l">THINK TOGETHER</span>
+              <span class="side-label r">REALTIME COLLABORATION</span>
+            </div>
             <div class="card-foot">
               <div class="bc-wrap">
                 <svg id="bc3" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -503,7 +507,6 @@
                 <div class="ingr">Ingredients: WebSocket, CRDT sync,<br>presence indicators, shared context<br>* Best consumed with coffee.</div>
               </div>
             </div>
-            <span class="side-label r">REALTIME COLLABORATION</span>
           </div>
         </div>
         <div class="card-back-face">
@@ -567,6 +570,14 @@ document.querySelectorAll('.hero-headline .word-inner').forEach((el,i)=>{
   gsap.fromTo(el,{yPercent:105},{yPercent:0,duration:0.9,delay:0.1+i*0.1,ease:'power4.out'})
 })
 gsap.fromTo('#hero-sub',{opacity:0,y:10},{opacity:0.5,y:0,duration:0.7,delay:0.6,ease:'power3.out'})
+
+// SCROLL TO DISCOVER: fade in 0→1, then settle into slow blink
+gsap.to('.hero-scroll', {
+  opacity: 1, duration: 1.2, delay: 1.2, ease: 'power2.out',
+  onComplete: () => {
+    gsap.to('.hero-scroll', { opacity: 0.12, duration: 1.4, ease: 'sine.inOut', yoyo: true, repeat: -1 })
+  }
+})
 
 // ── INTRO SECTION ANIMATIONS ─────────────────────────────
 // Headline words slide up when section enters
