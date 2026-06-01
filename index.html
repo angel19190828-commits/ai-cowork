@@ -59,7 +59,8 @@
     .hero-headline .word-wrap { display: block; overflow: hidden; line-height: 0.95; }
     .hero-headline .word-inner { display: block; }
     .hero-sub { margin-top: 2vw; font-family: 'PT Mono', monospace; font-size: 0.65vw; opacity: 0; letter-spacing: 0.08em; text-transform: uppercase; }
-    .hero-scroll { text-align: center; padding-bottom: 0.5vw; font-family: 'PT Mono', monospace; font-size: 0.58vw; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0; }
+    @keyframes slow-blink { 0%,100% { opacity: 0.45; } 50% { opacity: 0.12; } }
+    .hero-scroll { text-align: center; padding-bottom: 0.5vw; font-family: 'PT Mono', monospace; font-size: 0.58vw; letter-spacing: 0.28em; text-transform: uppercase; animation: slow-blink 2.8s ease-in-out infinite; }
 
     /* ── SERVICE SECTIONS ── */
     .section {
@@ -571,13 +572,6 @@ document.querySelectorAll('.hero-headline .word-inner').forEach((el,i)=>{
 })
 gsap.fromTo('#hero-sub',{opacity:0,y:10},{opacity:0.5,y:0,duration:0.7,delay:0.6,ease:'power3.out'})
 
-// SCROLL TO DISCOVER: fade in 0→1, then settle into slow blink
-gsap.to('.hero-scroll', {
-  opacity: 1, duration: 1.2, delay: 1.2, ease: 'power2.out',
-  onComplete: () => {
-    gsap.to('.hero-scroll', { opacity: 0.12, duration: 1.4, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-  }
-})
 
 // ── INTRO SECTION ANIMATIONS ─────────────────────────────
 // Headline words slide up when section enters
