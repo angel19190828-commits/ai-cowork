@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI COWORK ® STUDIO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400&family=PT+Mono&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400&family=PT+Mono&display=block" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --bg: #f4f2ef; --ink: #141414; --red: #d90000; --dark: #0d0d10; }
@@ -262,14 +263,6 @@
     }
 
     /* Large decorative number behind steps */
-    .intro-bg-glyph {
-      position: absolute; right: -2vw; top: 50%;
-      transform: translateY(-50%);
-      font-family: 'Inter', sans-serif; font-weight: 100;
-      font-size: 38vw; line-height: 1; opacity: 0.025;
-      pointer-events: none; user-select: none; letter-spacing: -0.06em;
-      color: var(--ink);
-    }
 
     /* ── MOBILE ── */
     @media (max-width: 768px) {
@@ -338,14 +331,13 @@
         <span class="word-wrap"><span class="word-inner">For AI</span></span>
         <span class="word-wrap"><span class="word-inner">Builders</span></span>
       </h1>
-      <p class="hero-sub" id="hero-sub">We craft AI-native collaborative experiences<br>for the modern builder</p>
+      <p class="hero-sub" id="hero-sub">An AI-assisted workflow for building interactive design systems</p>
     </div>
     <div class="hero-scroll">SCROLL TO DISCOVER</div>
   </section>
 
   <!-- ── INTRO / AI WORKFLOW ── -->
   <section class="intro-section" id="intro">
-    <span class="intro-bg-glyph">∞</span>
     <div class="intro-inner">
 
       <div class="intro-header">
@@ -601,12 +593,7 @@ document.querySelectorAll('.section-bg-num').forEach(el => {
     }
   )
 })
-gsap.fromTo('.intro-bg-glyph',
-  { yPercent: 6 },
-  { yPercent: -6, ease: 'none',
-    scrollTrigger: { trigger: '#intro', start: 'top bottom', end: 'bottom top', scrub: true }
-  }
-)
+
 // Intro headline moves slightly slower — creates foreground vs background depth
 gsap.fromTo('.intro-headline',
   { yPercent: 2 },
@@ -635,19 +622,48 @@ const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHei
 camera.position.set(0, 5.0, 8.66)
 camera.lookAt(0, 0, 0)
 
-// ── ENV MAP ──
+// ── ENV MAP — directional, high-contrast for layered metal reflections ──
+// This canvas is never shown on page — only baked into material reflections.
 const envC = document.createElement('canvas'); envC.width=1024; envC.height=512
 const ec = envC.getContext('2d')
-const baseG = ec.createLinearGradient(0,0,0,512)
-baseG.addColorStop(0,'#e4e8f0'); baseG.addColorStop(0.25,'#b8bcc8')
-baseG.addColorStop(0.55,'#787888'); baseG.addColorStop(0.75,'#909098'); baseG.addColorStop(1,'#c8d0e8')
-ec.fillStyle=baseG; ec.fillRect(0,0,1024,512)
-const topK=ec.createRadialGradient(512,0,0,512,0,280)
-topK.addColorStop(0,'rgba(255,255,248,1)'); topK.addColorStop(0.4,'rgba(255,248,220,0.85)'); topK.addColorStop(1,'rgba(255,248,220,0)')
-ec.fillStyle=topK; ec.fillRect(0,0,1024,512)
-const botR=ec.createRadialGradient(512,512,0,512,512,220)
-botR.addColorStop(0,'rgba(200,215,255,0.9)'); botR.addColorStop(1,'rgba(180,200,255,0)')
-ec.fillStyle=botR; ec.fillRect(0,0,1024,512)
+
+// Base: deeper warm-dark — richer shadow depth
+ec.fillStyle='#0e0c0a'; ec.fillRect(0,0,1024,512)
+
+// KEY LIGHT — upper-left, warm white, strong and tight
+const eKey=ec.createRadialGradient(220,60,0,220,60,320)
+eKey.addColorStop(0,'rgba(255,250,232,1)')
+eKey.addColorStop(0.2,'rgba(255,245,215,0.92)')
+eKey.addColorStop(0.55,'rgba(255,238,190,0.35)')
+eKey.addColorStop(1,'rgba(255,238,190,0)')
+ec.fillStyle=eKey; ec.fillRect(0,0,1024,512)
+
+// SECONDARY HIGHLIGHT — upper-right, slightly warm (not cold)
+const eKey2=ec.createRadialGradient(820,80,0,820,80,200)
+eKey2.addColorStop(0,'rgba(240,232,218,0.85)')
+eKey2.addColorStop(0.35,'rgba(220,210,195,0.40)')
+eKey2.addColorStop(1,'rgba(220,210,195,0)')
+ec.fillStyle=eKey2; ec.fillRect(0,0,1024,512)
+
+// WARM FILL — left mid, desaturated warm-grey (was cool blue, now warmer)
+const eFill=ec.createRadialGradient(50,280,0,50,280,380)
+eFill.addColorStop(0,'rgba(175,168,158,0.50)')
+eFill.addColorStop(0.5,'rgba(155,148,138,0.18)')
+eFill.addColorStop(1,'rgba(155,148,138,0)')
+ec.fillStyle=eFill; ec.fillRect(0,0,1024,512)
+
+// RIM LIGHT — right edge, warm strip
+const eRim=ec.createRadialGradient(1010,200,0,1010,200,180)
+eRim.addColorStop(0,'rgba(255,242,200,0.70)')
+eRim.addColorStop(0.4,'rgba(255,235,175,0.25)')
+eRim.addColorStop(1,'rgba(255,235,175,0)')
+ec.fillStyle=eRim; ec.fillRect(0,0,1024,512)
+
+// GROUND BOUNCE — bottom centre, warm amber
+const eGnd=ec.createRadialGradient(512,510,0,512,510,200)
+eGnd.addColorStop(0,'rgba(210,185,145,0.32)')
+eGnd.addColorStop(1,'rgba(210,185,145,0)')
+ec.fillStyle=eGnd; ec.fillRect(0,0,1024,512)
 
 const envTex=new THREE.CanvasTexture(envC); envTex.mapping=THREE.EquirectangularReflectionMapping
 const pmrem=new THREE.PMREMGenerator(renderer); pmrem.compileEquirectangularShader()
