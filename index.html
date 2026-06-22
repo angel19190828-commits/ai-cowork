@@ -61,7 +61,7 @@
     .hero-headline .word-inner { display: block; }
     .hero-sub { margin-top: 2vw; font-family: 'PT Mono', monospace; font-size: 0.65vw; opacity: 0; letter-spacing: 0.08em; text-transform: uppercase; }
     @keyframes slow-blink { 0%,100% { opacity: 0.45; } 50% { opacity: 0.12; } }
-    .hero-scroll { text-align: center; padding-bottom: 0.5vw; font-family: 'PT Mono', monospace; font-size: 0.58vw; letter-spacing: 0.28em; text-transform: uppercase; animation: slow-blink 2.8s ease-in-out infinite; }
+    .hero-scroll { text-align: center; padding-bottom: 0.5vw; font-family: 'PT Mono', monospace; font-size: 0.55vw; letter-spacing: 0.28em; text-transform: uppercase; animation: slow-blink 2.8s ease-in-out infinite; }
 
     /* ── SERVICE SECTIONS ── */
     .section {
@@ -75,7 +75,6 @@
       pointer-events: none; letter-spacing: -0.06em; user-select: none;
     }
 
-    /* card-wrap is the perspective parent for the flip */
     .card-wrap {
       margin-left: auto; padding-right: 6vw;
       position: relative; z-index: 3;
@@ -87,7 +86,6 @@
       transform-style: preserve-3d;
       position: relative;
       cursor: pointer;
-      /* start hidden — GSAP animates in */
       opacity: 0;
     }
     .card-front-face {
@@ -115,12 +113,13 @@
       font-family: 'Inter', sans-serif; font-weight: 100;
       font-size: 3vw; text-transform: uppercase;
       letter-spacing: -0.03em; line-height: 0.95;
-      color: #f0f0ee; max-width: 75%;
+      color: #f0f0ee; max-width: 85%;
     }
     .back-sub {
-      font-family: 'PT Mono', monospace; font-size: 0.58vw;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: rgba(240,240,238,0.4); margin-top: 1.4vw;
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: rgba(240,240,238,0.42); margin-top: 1.4vw;
+      line-height: 1.9; max-width: 90%;
     }
     .back-bar {
       width: 0; height: 1px;
@@ -134,7 +133,7 @@
       color: rgba(240,240,238,0.06);
     }
 
-    /* ── ORIGINAL CARD ── */
+    /* ── CARD ── */
     .card {
       width: 36vw;
       border: 1px solid var(--ink); border-radius: 0.45vw;
@@ -155,114 +154,260 @@
     }
     .card-title .title-inner { display: block; }
     .card-body { height: 8vw; position: relative; }
+    .card-body.method-body { height: auto; min-height: 9vw; }
     .side-label {
       position: absolute; font-family: 'PT Mono', monospace;
-      font-size: 0.42vw; text-transform: uppercase; letter-spacing: 0.08em;
+      font-size: 0.45vw; text-transform: uppercase; letter-spacing: 0.08em;
       white-space: nowrap; writing-mode: vertical-rl;
       top: 0; bottom: 0; display: flex; align-items: center; padding: 0 0.3vw;
     }
     .side-label.r { right: 0; border-right: 1px solid rgba(0,0,0,0.18); }
     .side-label.l { left: 0; border-left: 1px solid rgba(0,0,0,0.18); transform: rotate(180deg); }
+    .method-desc {
+      padding: 1.4vw 2.2vw;
+      font-family: 'Inter', sans-serif; font-weight: 300;
+      font-size: 0.78vw; line-height: 1.8; opacity: 0.85;
+    }
     .card-foot {
       border-top: 1px solid var(--ink); padding: 0.8vw 1.4vw;
       display: grid; grid-template-columns: auto 1fr; gap: 1.2vw; align-items: start;
     }
-    .bc-wrap {
-      padding-right: 1.2vw; border-right: 1px solid rgba(0,0,0,0.15);
-      display: flex; flex-direction: column; gap: 0.5vw;
+    .card-foot.method-foot {
+      grid-template-columns: 1fr; gap: 0;
+      padding: 1.2vw 1.4vw;
     }
-    .bc-wrap svg { width: 6.5vw; height: 1.3vw; display: block; }
-    .purchased {
-      display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid var(--red); color: var(--red); border-radius: 2vw;
-      padding: 0.22vw 0.7vw; font-family: 'PT Mono', monospace;
-      font-size: 0.58vw; text-transform: uppercase; width: fit-content;
+    .method-row {
+      display: flex; gap: 1.2vw; align-items: baseline;
+      padding: 0.55vw 0; border-top: 1px solid rgba(0,0,0,0.06);
     }
-    .stats { font-family: 'PT Mono', monospace; font-size: 0.6vw; line-height: 1.5; }
-    .for-line { font-size: 0.52vw; opacity: 0.5; margin-bottom: 0.25vw; }
-    .stat { display: flex; justify-content: space-between; gap: 0.8vw; }
-    .stat .k { opacity: 0.6; }
-    .stat .v { font-weight: 500; }
-    .ingr {
-      margin-top: 0.4vw; padding-top: 0.35vw;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      font-size: 0.5vw; opacity: 0.45; line-height: 1.35;
+    .method-row:first-child { border-top: none; padding-top: 0; }
+    .method-row:last-child { padding-bottom: 0; }
+    .method-label {
+      font-family: 'PT Mono', monospace; font-size: 0.45vw;
+      opacity: 0.32; text-transform: uppercase; letter-spacing: 0.1em;
+      white-space: nowrap; min-width: 5vw;
+    }
+    .method-text {
+      font-family: 'PT Mono', monospace; font-size: 0.52vw;
+      opacity: 0.85; line-height: 1.55;
     }
 
-    /* ── INTRO SECTION ── */
-    .intro-section {
+    /* ── OVERVIEW SECTIONS (001, 002, 003) ── */
+    .overview-section {
       min-height: 100vh; display: flex; align-items: center;
       padding: 10vw 8vw 10vw 12vw; position: relative; overflow: hidden;
     }
-    .intro-inner { width: 100%; }
-
-    .intro-header {
+    .overview-inner { width: 100%; }
+    .overview-header {
       display: flex; justify-content: space-between; align-items: baseline;
       border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.8vw; margin-bottom: 5vw;
     }
-    .intro-index {
-      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+    .overview-index {
+      font-family: 'PT Mono', monospace; font-size: 0.8vw;
       letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
     }
-    .intro-tag {
-      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+    .overview-tag {
+      font-family: 'PT Mono', monospace; font-size: 0.8vw;
       letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
     }
-
-    .intro-headline {
+    .overview-headline {
       font-family: 'Inter', sans-serif; font-weight: 100;
-      font-size: 7.8vw; line-height: 0.9; text-transform: uppercase;
-      letter-spacing: -0.03em; margin-bottom: 5vw;
+      font-size: 6vw; line-height: 0.9; text-transform: uppercase;
+      letter-spacing: -0.03em; margin-bottom: 4vw;
     }
-    .intro-headline .iw { display: block; overflow: hidden; line-height: 0.95; }
-    .intro-headline .iw-inner { display: block; }
+    .overview-headline .iw { display: block; overflow: hidden; line-height: 0.95; }
+    .overview-headline .iw-inner { display: block; }
+    .overview-body {
+      font-family: 'Inter', sans-serif; font-weight: 300;
+      font-size: 1.1vw; line-height: 1.85; opacity: 0.88; max-width: 55vw;
+    }
+    .overview-body p { margin-bottom: 1.2vw; }
+    .overview-body p:last-child { margin-bottom: 0; }
 
-    .intro-body-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6vw;
-      padding-bottom: 5vw; border-bottom: 1px solid rgba(0,0,0,0.08);
-      margin-bottom: 5vw;
+    /* ── WORKFLOW TIMELINE ── */
+    .wf-section { position: relative; }
+    .wf-intro { padding: 10vw 8vw 2vw 12vw; }
+    .wf-scroll-body { height: 400vh; position: relative; }
+    .wf-sticky {
+      height: 100vh;
+      position: relative;
     }
-    .intro-body-text {
-      font-family: 'Inter', sans-serif; font-weight: 100;
-      font-size: 1.05vw; line-height: 1.85; opacity: 0;
+    .wf-track-row {
+      position: absolute; top: 13%; left: 12vw; right: 8vw;
+      transform: translateY(-50%); margin-bottom: 0;
     }
-    .intro-body-text.bold-first::first-line {
-      font-weight: 300;
+    .wf-rail { height: 1px; background: rgba(0,0,0,0.1); width: 100%; position: relative; }
+    .wf-rail-fill {
+      position: absolute; left: 0; top: 0;
+      width: 100%; height: 1px; background: var(--ink);
+      transform-origin: left center; transform: scaleX(0);
+    }
+    .wf-nodes-row {
+      position: absolute; top: -1.8vw; left: 0; right: 0;
+      display: flex; justify-content: space-between;
+    }
+    .wf-node-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5vw; }
+    .wf-node-lbl {
+      font-family: 'PT Mono', monospace; font-size: 0.45vw;
+      letter-spacing: 0.1em; opacity: 0.25; text-transform: uppercase;
+    }
+    .wf-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(0,0,0,0.15); display: block; }
+    .wf-stage {
+      position: absolute; top: calc(13% + 3.5vw); left: 12vw; right: 8vw;
+      height: 38vh; overflow: hidden;
+    }
+    .wf-card { position: absolute; top: 0; left: 0; right: 0; opacity: 0; pointer-events: none; }
+    .wf-bg-num {
+      font-family: 'Inter'; font-weight: 100; font-size: 13vw; line-height: 0.85;
+      opacity: 0.05; letter-spacing: -0.05em;
+      position: absolute; right: 0; top: -0.5vw;
+      pointer-events: none; user-select: none;
+    }
+    .wf-title {
+      font-family: 'Inter'; font-weight: 100; font-size: 5vw;
+      text-transform: uppercase; letter-spacing: -0.03em; line-height: 0.88;
+      margin-bottom: 2.5vw;
+    }
+    .wf-desc {
+      font-family: 'Inter'; font-weight: 300; font-size: 1.1vw;
+      line-height: 1.85; opacity: 0.75; max-width: 42vw;
     }
 
-    /* Workflow step grid */
-    .intro-steps {
-      display: grid; grid-template-columns: repeat(4, 1fr);
+    /* ── LIMITATIONS TABLE ── */
+    .limits-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
       border: 1px solid rgba(0,0,0,0.1); border-radius: 0.4vw; overflow: hidden;
+      margin-top: 4vw;
     }
-    .intro-step {
-      padding: 2.2vw 1.8vw;
-      border-right: 1px solid rgba(0,0,0,0.1);
-      opacity: 0; transform: translateY(14px);
+    .limits-col:first-child { border-right: 1px solid rgba(0,0,0,0.1); }
+    .limits-col-header {
+      padding: 1.2vw 2vw; border-bottom: 1px solid rgba(0,0,0,0.1);
+      font-family: 'PT Mono', monospace; font-size: 0.52vw;
+      letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.32;
     }
-    .intro-step:last-child { border-right: none; }
+    .limits-item {
+      padding: 1.5vw 2vw; border-bottom: 1px solid rgba(0,0,0,0.055);
+    }
+    .limits-item:last-child { border-bottom: none; }
+    .limits-issue {
+      font-family: 'Inter', sans-serif; font-weight: 300;
+      font-size: 1.1vw; text-transform: uppercase; letter-spacing: -0.01em;
+      margin-bottom: 0.5vw;
+    }
+    .limits-example {
+      font-family: 'PT Mono', monospace; font-size: 0.62vw;
+      opacity: 0.88; line-height: 1.75; text-transform: uppercase; letter-spacing: 0.02em;
+    }
 
-    .step-num {
-      font-family: 'PT Mono', monospace; font-size: 0.48vw;
-      letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.3;
-      margin-bottom: 1.2vw;
+    /* ── 004 HEADER ── */
+    .section-004-header {
+      padding: 8vw 8vw 4vw 12vw;
+      border-top: 1px solid rgba(0,0,0,0.08);
     }
-    .step-arrow {
+    .section-004-index {
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
+      display: block; margin-bottom: 2.5vw;
+    }
+    .section-004-title {
       font-family: 'Inter', sans-serif; font-weight: 100;
-      font-size: 1.1vw; opacity: 0.18; margin-bottom: 0.6vw;
+      font-size: 8.5vw; line-height: 0.9; text-transform: uppercase;
+      letter-spacing: -0.03em;
     }
-    .step-name {
+
+    /* ── WHAT DIDN'T WORK ── */
+    .fails-section {
+      padding: 8vw 8vw 8vw 12vw;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .fails-section-index {
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
+      display: block; margin-bottom: 2vw;
+    }
+    .fails-section-title {
       font-family: 'Inter', sans-serif; font-weight: 100;
-      font-size: 1.5vw; text-transform: uppercase; letter-spacing: -0.02em;
-      line-height: 1; margin-bottom: 1vw;
+      font-size: 8.5vw; text-transform: uppercase; letter-spacing: -0.03em;
+      line-height: 0.92; margin-bottom: 6vw;
     }
-    .step-desc {
+    .fails-item {
+      border-top: 1px solid rgba(0,0,0,0.07); padding: 4vw 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 5vw; align-items: start;
+    }
+    .fails-placeholder {
+      aspect-ratio: 16/9; background: rgba(0,0,0,0.025);
+      border: 1px solid rgba(0,0,0,0.07); border-radius: 0.3vw;
+      display: flex; align-items: center; justify-content: center;
       font-family: 'PT Mono', monospace; font-size: 0.5vw;
-      line-height: 1.65; opacity: 0.45; text-transform: uppercase;
-      letter-spacing: 0.03em;
+      color: rgba(0,0,0,0.22); text-transform: uppercase; letter-spacing: 0.1em;
+      overflow: hidden;
+    }
+    .fails-placeholder img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .fails-fail-title {
+      font-family: 'Inter', sans-serif; font-weight: 100;
+      font-size: 1.8vw; text-transform: uppercase; letter-spacing: -0.02em;
+      line-height: 1.1; margin-bottom: 2vw;
+    }
+    .fails-dialogue {
+      font-family: 'PT Mono', monospace; font-size: 1.05vw;
+      line-height: 2.1; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.02em;
+    }
+    .fails-result {
+      margin-top: 1.5vw; font-family: 'PT Mono', monospace; font-size: 1.0vw;
+      opacity: 0.55; text-transform: uppercase; letter-spacing: 0.06em;
+      padding-top: 1.2vw; border-top: 1px solid rgba(0,0,0,0.07);
     }
 
-    /* Large decorative number behind steps */
+    /* ── REFLECTION ── */
+    .reflection-section {
+      min-height: 80vh; display: flex; align-items: center;
+      padding: 10vw 8vw 10vw 12vw; border-top: 1px solid rgba(0,0,0,0.07);
+    }
+    .reflection-inner { max-width: 58vw; }
+    .reflection-index {
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
+      display: block; margin-bottom: 5vw;
+    }
+    .reflection-text {
+      font-family: 'Inter', sans-serif; font-weight: 300;
+      font-size: 1.35vw; line-height: 1.8; opacity: 0.88;
+    }
+    .reflection-text p { margin-bottom: 1.8vw; }
+    .reflection-text p:last-child { margin-bottom: 0; }
+
+    /* ── PROCESS / ASSETS SECTION ── */
+    .process-section {
+      padding: 10vw 8vw 12vw 12vw;
+      border-top: 1px solid rgba(0,0,0,0.07);
+    }
+    .process-inner { max-width: 76vw; }
+    .process-index {
+      font-family: 'PT Mono', monospace; font-size: 0.55vw;
+      letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.28;
+      display: block; margin-bottom: 8vw;
+    }
+    .process-block { margin-bottom: 6vw; }
+    .process-block-label {
+      font-family: 'PT Mono', monospace; font-size: 0.62vw;
+      letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.4;
+      margin-bottom: 2vw;
+    }
+    .process-img-single .process-placeholder {
+      aspect-ratio: 16/9; width: 100%;
+    }
+    .process-img-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw;
+    }
+    .process-img-row .process-placeholder { aspect-ratio: 4/3; }
+    .process-placeholder {
+      background: rgba(0,0,0,0.025); border: 1px solid rgba(0,0,0,0.07);
+      border-radius: 0.3vw; display: flex; align-items: center; justify-content: center;
+      font-family: 'PT Mono', monospace; font-size: 0.5vw;
+      color: rgba(0,0,0,0.22); text-transform: uppercase; letter-spacing: 0.1em;
+    }
 
     /* ── MOBILE ── */
     @media (max-width: 768px) {
@@ -275,34 +420,46 @@
       .hero-headline { font-size: 14vw; max-width: 85vw; }
       .hero-sub { font-size: 2.2vw; margin-top: 5vw; }
       .hero-scroll { font-size: 2vw; }
-      .intro-section { padding: 12vw 5vw 12vw 16vw; }
-      .intro-headline { font-size: 12vw; margin-bottom: 8vw; }
-      .intro-header { padding-top: 4vw; margin-bottom: 8vw; }
-      .intro-index, .intro-tag { font-size: 1.8vw; }
-      .intro-body-grid { grid-template-columns: 1fr; gap: 5vw; }
-      .intro-body-text { font-size: 3.2vw; }
-      .intro-steps { grid-template-columns: repeat(2, 1fr); }
-      .intro-step { padding: 5vw 4vw; border-bottom: 1px solid rgba(0,0,0,0.1); }
-      .intro-step:nth-child(even) { border-right: none; }
+      .overview-section { padding: 12vw 5vw 12vw 16vw; }
+      .overview-headline { font-size: 13vw; margin-bottom: 8vw; }
+      .overview-header { padding-top: 4vw; margin-bottom: 8vw; }
+      .overview-index, .overview-tag { font-size: 1.8vw; }
+      .overview-body { font-size: 3.2vw; max-width: 100%; }
+      .workflow-steps { grid-template-columns: repeat(2, 1fr); }
+      .workflow-step { padding: 5vw 4vw; border-bottom: 1px solid rgba(0,0,0,0.1); }
+      .workflow-step:nth-child(even) { border-right: none; }
       .step-name { font-size: 5vw; }
       .step-desc { font-size: 1.8vw; }
       .step-num { font-size: 1.6vw; }
+      .limits-grid { grid-template-columns: 1fr; }
+      .limits-col:first-child { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
+      .limits-issue { font-size: 3vw; }
+      .limits-example { font-size: 1.8vw; }
       .section { padding: 0 5vw 0 16vw; }
       .card-wrap { padding-right: 0; width: 100%; }
       .card { width: 100%; border-radius: 1.5vw; }
       .card-num { font-size: 14vw; padding: 3vw 4vw 1.5vw; }
       .card-title { font-size: 5vw; padding: 2.5vw 4vw; }
       .card-body { height: 22vw; }
+      .card-body.method-body { min-height: 28vw; }
+      .method-desc { font-size: 2.8vw; padding: 3.5vw 4vw; }
       .side-label { font-size: 1.3vw; padding: 0 0.8vw; }
       .card-foot { padding: 2.5vw 4vw; gap: 3vw; }
-      .bc-wrap svg { width: 20vw; height: 4vw; }
-      .purchased { font-size: 1.8vw; padding: 0.8vw 2.2vw; border-radius: 6vw; }
-      .stats { font-size: 2vw; }
-      .for-line { font-size: 1.8vw; }
-      .ingr { font-size: 1.6vw; }
+      .method-label { font-size: 1.5vw; min-width: 16vw; }
+      .method-text { font-size: 1.8vw; }
       .section-bg-num { font-size: 72vw; left: 8vw; }
       .back-title { font-size: 8vw; }
       .back-label, .back-sub { font-size: 2vw; }
+      .section-004-header { padding: 12vw 5vw 6vw 16vw; }
+      .section-004-title { font-size: 13vw; }
+      .fails-section { padding: 10vw 5vw 10vw 16vw; }
+      .fails-item { grid-template-columns: 1fr; gap: 4vw; }
+      .fails-fail-title { font-size: 6vw; }
+      .fails-dialogue { font-size: 2vw; }
+      .fails-section-title { font-size: 8vw; }
+      .reflection-section { padding: 12vw 5vw 12vw 16vw; }
+      .reflection-inner { max-width: 100%; }
+      .reflection-text { font-size: 4vw; }
     }
   </style>
 </head>
@@ -319,6 +476,7 @@
 </div>
 
 <main>
+  <!-- ── HERO ── -->
   <section class="hero">
     <div class="hero-top">
       <span class="hero-brand">AI COWORK ® VISUAL INTELLIGENCE</span>
@@ -336,178 +494,297 @@
     <div class="hero-scroll">SCROLL TO DISCOVER</div>
   </section>
 
-  <!-- ── INTRO / AI WORKFLOW ── -->
-  <section class="intro-section" id="intro">
-    <div class="intro-inner">
-
-      <div class="intro-header">
-        <span class="intro-index">§ 001 &nbsp;/&nbsp; INTRODUCTION</span>
-        <span class="intro-tag">AI WORKFLOW</span>
+  <!-- ── 001 / ABOUT ── -->
+  <section class="overview-section" id="about">
+    <div class="overview-inner">
+      <div class="overview-header">
+        <span class="overview-index">§ 001 &nbsp;/&nbsp; ABOUT</span>
+        <span class="overview-tag">ORIGIN</span>
       </div>
-
-      <h2 class="intro-headline">
-        <span class="iw"><span class="iw-inner">The New Way</span></span>
-        <span class="iw"><span class="iw-inner">Things Get</span></span>
-        <span class="iw"><span class="iw-inner">Built</span></span>
+      <h2 class="overview-headline">
+        <span class="iw"><span class="iw-inner">How This</span></span>
+        <span class="iw"><span class="iw-inner">Got Built</span></span>
       </h2>
-
-      <div class="intro-body-grid">
-        <p class="intro-body-text" id="intro-p1">
-          AI workflow is not automation for automation's sake. It is the art of composing intelligence — connecting the right models, tools, and agents to amplify what humans do best. Every step in the process becomes faster, sharper, and more intentional.
-        </p>
-        <p class="intro-body-text" id="intro-p2">
-          From idea to output, modern AI workflows collapse the distance between intention and execution. The gap between thinking and building has never been smaller. Teams that understand this ship faster, iterate better, and build products that feel alive.
-        </p>
+      <div class="overview-body" id="about-body">
+        <p>I built this because I kept running into the same problem. The tools exist, but using them well is harder than it looks. Most people interact with AI through a chat box. I wanted to find out what happens when you push it further: use it as a production partner, not a search engine.</p>
+        <p>But the real question I was trying to answer was: how do you give an AI taste? How do you build a shared aesthetic, label it, describe it precisely enough, so that what comes out actually matches what you had in mind? This site is the experiment. Every piece of it was built without writing a line of code by hand. What I was figuring out the whole time was the language. The exact way to describe a visual feeling so the AI can replicate it perfectly. That is what this project documents.</p>
       </div>
-
-      <div class="intro-steps" id="intro-steps">
-        <div class="intro-step">
-          <div class="step-num">STEP 01</div>
-          <div class="step-arrow">↓</div>
-          <div class="step-name">Define</div>
-          <div class="step-desc">Articulate intent in natural language — what you want to build, solve, or create. Context is everything.</div>
-        </div>
-        <div class="intro-step">
-          <div class="step-num">STEP 02</div>
-          <div class="step-arrow">↓</div>
-          <div class="step-name">Orchestrate</div>
-          <div class="step-desc">Agents plan, delegate and execute — tools activated, APIs called, memory maintained across every cycle.</div>
-        </div>
-        <div class="intro-step">
-          <div class="step-num">STEP 03</div>
-          <div class="step-arrow">↓</div>
-          <div class="step-name">Iterate</div>
-          <div class="step-desc">Human and machine refine together. Feedback loops that get smarter, outputs that keep improving.</div>
-        </div>
-        <div class="intro-step">
-          <div class="step-num">STEP 04</div>
-          <div class="step-arrow">↓</div>
-          <div class="step-name">Ship</div>
-          <div class="step-desc">Deploy at the speed of thought — production-ready output, not prototypes. No waiting, no friction.</div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- ── SECTION 1 ── -->
+  <!-- ── 002 / MY WORKFLOW ── -->
+  <section class="wf-section" id="workflow">
+    <div class="wf-intro">
+      <div class="overview-header">
+        <span class="overview-index">§ 002 &nbsp;/&nbsp; MY WORKFLOW</span>
+        <span class="overview-tag">PROCESS</span>
+      </div>
+      <h2 class="overview-headline">
+        <span class="iw"><span class="iw-inner">How I Work</span></span>
+      </h2>
+    </div>
+    <div class="wf-scroll-body">
+      <div class="wf-sticky" id="wf-sticky">
+        <div class="wf-track-row">
+          <div class="wf-rail"><div class="wf-rail-fill" id="wf-rail-fill"></div></div>
+          <div class="wf-nodes-row">
+            <div class="wf-node-wrap"><span class="wf-node-lbl">01</span><span class="wf-dot" id="wf-dot-0"></span></div>
+            <div class="wf-node-wrap"><span class="wf-node-lbl">02</span><span class="wf-dot" id="wf-dot-1"></span></div>
+            <div class="wf-node-wrap"><span class="wf-node-lbl">03</span><span class="wf-dot" id="wf-dot-2"></span></div>
+            <div class="wf-node-wrap"><span class="wf-node-lbl">04</span><span class="wf-dot" id="wf-dot-3"></span></div>
+          </div>
+        </div>
+        <div class="wf-stage">
+          <div class="wf-card" data-i="0">
+            <div class="wf-bg-num">01</div>
+            <div class="wf-title">Ideation</div>
+            <div class="wf-desc">Define the visual direction before building.</div>
+          </div>
+          <div class="wf-card" data-i="1">
+            <div class="wf-bg-num">02</div>
+            <div class="wf-title">Experiment</div>
+            <div class="wf-desc">Build quickly and explore multiple possibilities.</div>
+          </div>
+          <div class="wf-card" data-i="2">
+            <div class="wf-bg-num">03</div>
+            <div class="wf-title">Test</div>
+            <div class="wf-desc">Review the result, identify what feels wrong, and rewind.</div>
+          </div>
+          <div class="wf-card" data-i="3">
+            <div class="wf-bg-num">04</div>
+            <div class="wf-title">Refine</div>
+            <div class="wf-desc">Adjust one detail at a time until the experience feels right.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 003 / AI LIMITATIONS ── -->
+  <section class="overview-section" id="limitations">
+    <div class="overview-inner">
+      <div class="overview-header">
+        <span class="overview-index">§ 003 &nbsp;/&nbsp; AI LIMITATIONS</span>
+        <span class="overview-tag">PROBLEMS</span>
+      </div>
+      <h2 class="overview-headline">
+        <span class="iw"><span class="iw-inner">When It</span></span>
+        <span class="iw"><span class="iw-inner">Breaks</span></span>
+      </h2>
+      <div class="limits-grid">
+        <div class="limits-col">
+          <div class="limits-col-header">AI</div>
+          <div class="limits-item">
+            <div class="limits-issue">Cannot See</div>
+            <div class="limits-example">Background numbers were clipped at the bottom. The CSS was changed. Neither of us knew until the browser was opened.</div>
+          </div>
+          <div class="limits-item">
+            <div class="limits-issue">No Aesthetic Sense</div>
+            <div class="limits-example">The camera cinematic movement was tried twice. Both times it was reverted. The AI had no way to know which angle felt right.</div>
+          </div>
+          <div class="limits-item">
+            <div class="limits-issue">Memory Resets</div>
+            <div class="limits-example">In a new session, the locked camera values had to be re-confirmed. Context from a previous conversation does not carry over.</div>
+          </div>
+          <div class="limits-item">
+            <div class="limits-issue">Does Not Self-Audit</div>
+            <div class="limits-example">A function was called inside the draw loop at 60 frames per second. The code was delivered. The problem was found later.</div>
+          </div>
+        </div>
+        <div class="limits-col">
+          <div class="limits-col-header">HUMAN</div>
+          <div class="limits-item">
+            <div class="limits-issue">Needs To See It First</div>
+            <div class="limits-example">The cinematic camera movement was requested. After seeing it, it was reverted. The idea only became clear once it existed.</div>
+          </div>
+          <div class="limits-item">
+            <div class="limits-issue">Describes With Feeling</div>
+            <div class="limits-example">The camera offset needed to increase by 2 percent. From which value. On which axis. The AI had to interpret.</div>
+          </div>
+          <div class="limits-item">
+            <div class="limits-issue">Changes Direction Mid-Build</div>
+            <div class="limits-example">The background number target moved from minus 50 to minus 52, to minus 56, to minus 61, and settled at minus 51. Back where it started.</div>
+          </div>
+          <div class="limits-item">
+            <div class="limits-issue">Does Not Always State The Boundary</div>
+            <div class="limits-example">The camera position was not declared off-limits. It was changed. That was how the boundary was discovered.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHAT DIDN'T WORK ── -->
+  <section class="fails-section" id="fails">
+    <span class="fails-section-index">THE MESS</span>
+    <div class="fails-section-title">What Didn't<br>Work</div>
+
+    <div class="fails-item">
+      <div class="fails-placeholder">SCREENSHOT / VIDEO</div>
+      <div class="fails-content">
+        <div class="fails-fail-title">Background Numbers<br>Clipped</div>
+        <div class="fails-dialogue">
+          The large background numbers were clipped at the bottom.<br>
+          Changed the overflow setting to fix it.<br>
+          Scrollbars appeared across multiple sections.<br>
+          Reverted. Adjusted the number position instead.
+        </div>
+        <div class="fails-result">FINAL: Kept section clipping. Moved the number upward.</div>
+      </div>
+    </div>
+
+    <div class="fails-item">
+      <div class="fails-placeholder">
+        <img src="screenshot_1.png" alt="Side label overflow annotation">
+      </div>
+      <div class="fails-content">
+        <div class="fails-fail-title">Side Label<br>Overlap</div>
+        <div class="fails-dialogue">
+          The vertical side labels were overlapping the divider lines.<br>
+          Added a background behind the labels to cover the overlap.<br>
+          It only hid the problem visually. Reverted.<br>
+          Placed the labels inside the card body instead.
+        </div>
+        <div class="fails-result">FINAL: Fix the structure instead of hiding the overlap.</div>
+      </div>
+    </div>
+
+    <div class="fails-item">
+      <div class="fails-placeholder">SCREENSHOT / VIDEO</div>
+      <div class="fails-content">
+        <div class="fails-fail-title">Hero Headline<br>Flash</div>
+        <div class="fails-dialogue">
+          The headline briefly flashed the wrong font weight on load.<br>
+          Tried hiding the text until fonts finished loading.<br>
+          Headline stayed invisible. That fix created a worse problem.<br>
+          Reverted everything.
+        </div>
+        <div class="fails-result">ONGOING: The font-loading flash still needs a cleaner solution.</div>
+      </div>
+    </div>
+
+    <div class="fails-item">
+      <div class="fails-placeholder">SCREENSHOT / VIDEO</div>
+      <div class="fails-content">
+        <div class="fails-fail-title">Cinematic Camera<br>Movement</div>
+        <div class="fails-dialogue">
+          Wanted the Hero camera movement to feel more cinematic.<br>
+          Two versions tested. Both felt wrong once seen in the browser.<br>
+          Reverted both. Kept the original position unchanged.
+        </div>
+        <div class="fails-result">LESSON: Some motion decisions cannot be made from text alone. I need to see the movement before I know whether it feels right.</div>
+      </div>
+    </div>
+
+    <div class="fails-item">
+      <div class="fails-placeholder">SCREENSHOT / VIDEO</div>
+      <div class="fails-content">
+        <div class="fails-fail-title">Receipt Replacing<br>Instead of Growing</div>
+        <div class="fails-dialogue">
+          The first version replaced the receipt content every time a new product appeared.<br>
+          Described it again: a real receipt printer where every item adds a line at the bottom.<br>
+          Nothing ever disappears. Rebuilt with an accumulation pattern.
+        </div>
+        <div class="fails-result">FINAL: The receipt now grows continuously instead of replacing its content.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 004 / WHAT I FOUND — HEADER ── -->
+  <div class="section-004-header">
+    <span class="section-004-index">§ 004 &nbsp;/&nbsp; WHAT I FOUND</span>
+    <div class="section-004-title">What<br>I Found</div>
+  </div>
+
+  <!-- ── SECTION 1: SHOW DON'T DESCRIBE ── -->
   <section class="section" id="s1">
     <span class="section-bg-num">1</span>
     <div class="card-wrap">
-      <div class="card-flip" id="card1" data-work="work1.html">
-        <div class="card-front-face">
-          <div class="card">
-            <div class="card-num"><span class="num-inner">#01</span></div>
-            <div class="card-title"><span class="title-inner">AI Workspace<br>Infrastructure</span></div>
-            <div class="card-body">
-              <span class="side-label l">BUILT FOR BUILDERS</span>
-              <span class="side-label r">AI WORKSPACE INFRASTRUCTURE</span>
-            </div>
-            <div class="card-foot">
-              <div class="bc-wrap">
-                <svg id="bc1" xmlns="http://www.w3.org/2000/svg"></svg>
-                <span class="purchased">PURCHASED</span>
-              </div>
-              <div class="stats">
-                <div class="for-line">FOR &nbsp; 1 WORKSPACE</div>
-                <div class="stat"><span class="k">SPEED</span><span class="v">98%</span></div>
-                <div class="stat"><span class="k">RELIABILITY</span><span class="v">99%</span></div>
-                <div class="stat"><span class="k">AI NATIVE</span><span class="v">100%</span></div>
-                <div class="stat"><span class="k">COLLABORATION</span><span class="v">95%</span></div>
-                <div class="stat"><span class="k">BORING TOOLS</span><span class="v">0%</span></div>
-                <div class="ingr">Ingredients: Real-time sync, AI agents,<br>collaborative canvas, smart docs<br>* No vendor lock-in.</div>
-              </div>
-            </div>
-          </div>
+      <div class="card-flip" id="card1" data-work="">
+        <div class="card-front-face" style="width:36vw;">
+          <img src="card01.png" alt="Method 01: Create Reference" style="width:100%;display:block;">
         </div>
         <div class="card-back-face">
-          <div class="back-label">Opening Project</div>
-          <div class="back-title">AI Workspace<br>Infrastructure</div>
-          <div class="back-sub">Loading experience...</div>
-          <div class="back-bar" id="bar1"></div>
+          <div class="back-label">Method Applied</div>
+          <div class="back-title">Show Don't<br>Describe</div>
+          <div class="back-sub">When the background color needed to feel like paper, saying warm off-white got interpreted differently every time. Sending #f4f2ef ended the conversation.</div>
           <div class="back-bignum">#01</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── SECTION 2 ── -->
+  <!-- ── SECTION 2: SET THE BOUNDARY FIRST ── -->
   <section class="section" id="s2">
     <span class="section-bg-num">2</span>
     <div class="card-wrap">
-      <div class="card-flip" id="card2" data-work="work1.html">
-        <div class="card-front-face">
-          <div class="card">
-            <div class="card-num"><span class="num-inner">#02</span></div>
-            <div class="card-title"><span class="title-inner">AI Agent<br>Workflows</span></div>
-            <div class="card-body">
-              <span class="side-label l">AUTOMATE EVERYTHING</span>
-              <span class="side-label r">AI AGENT WORKFLOWS</span>
-            </div>
-            <div class="card-foot">
-              <div class="bc-wrap">
-                <svg id="bc2" xmlns="http://www.w3.org/2000/svg"></svg>
-                <span class="purchased">PURCHASED</span>
-              </div>
-              <div class="stats">
-                <div class="for-line">FOR &nbsp; UNLIMITED AGENTS</div>
-                <div class="stat"><span class="k">AUTONOMY</span><span class="v">92%</span></div>
-                <div class="stat"><span class="k">ACCURACY</span><span class="v">94%</span></div>
-                <div class="stat"><span class="k">THROUGHPUT</span><span class="v">97%</span></div>
-                <div class="stat"><span class="k">CREATIVITY</span><span class="v">89%</span></div>
-                <div class="stat"><span class="k">MANUAL WORK</span><span class="v">5%</span></div>
-                <div class="ingr">Ingredients: LLM pipelines, tool use,<br>memory, multi-agent coordination<br>* May contain traces of magic.</div>
-              </div>
-            </div>
-          </div>
+      <div class="card-flip" id="card2" data-work="">
+        <div class="card-front-face" style="width:36vw;">
+          <img src="card02.png" alt="Method 02: Set The Boundary First" style="width:100%;display:block;">
         </div>
         <div class="card-back-face">
-          <div class="back-label">Opening Project</div>
-          <div class="back-title">AI Agent<br>Workflows</div>
-          <div class="back-sub">Loading experience...</div>
-          <div class="back-bar" id="bar2"></div>
+          <div class="back-label">Method Applied</div>
+          <div class="back-title">Set The<br>Boundary First</div>
+          <div class="back-sub">camera.position.set(0, 5.0, 8.66) was adjusted over multiple sessions to reach the right value. The moment no one said it was locked, it was changed.</div>
           <div class="back-bignum">#02</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── SECTION 3 ── -->
+  <!-- ── SECTION 3: COMMANDS NOT EXPLANATIONS ── -->
   <section class="section" id="s3">
     <span class="section-bg-num">3</span>
     <div class="card-wrap">
-      <div class="card-flip" id="card3" data-work="work1.html">
-        <div class="card-front-face">
-          <div class="card">
-            <div class="card-num"><span class="num-inner">#03</span></div>
-            <div class="card-title"><span class="title-inner">Realtime<br>Collaboration</span></div>
-            <div class="card-body">
-              <span class="side-label l">THINK TOGETHER</span>
-              <span class="side-label r">REALTIME COLLABORATION</span>
-            </div>
-            <div class="card-foot">
-              <div class="bc-wrap">
-                <svg id="bc3" xmlns="http://www.w3.org/2000/svg"></svg>
-                <span class="purchased">PURCHASED</span>
-              </div>
-              <div class="stats">
-                <div class="for-line">FOR &nbsp; YOUR WHOLE TEAM</div>
-                <div class="stat"><span class="k">SYNC SPEED</span><span class="v">&lt;50ms</span></div>
-                <div class="stat"><span class="k">UPTIME</span><span class="v">99.9%</span></div>
-                <div class="stat"><span class="k">INTEGRATIONS</span><span class="v">50+</span></div>
-                <div class="stat"><span class="k">LATENCY</span><span class="v">LOW</span></div>
-                <div class="stat"><span class="k">FRICTION</span><span class="v">0%</span></div>
-                <div class="ingr">Ingredients: WebSocket, CRDT sync,<br>presence indicators, shared context<br>* Best consumed with coffee.</div>
-              </div>
-            </div>
-          </div>
+      <div class="card-flip" id="card3" data-work="">
+        <div class="card-front-face" style="width:36vw;">
+          <img src="card03.png" alt="Method 03: Commands Not Explanations" style="width:100%;display:block;">
         </div>
         <div class="card-back-face">
-          <div class="back-label">Opening Project</div>
-          <div class="back-title">Realtime<br>Collaboration</div>
-          <div class="back-sub">Loading experience...</div>
-          <div class="back-bar" id="bar3"></div>
+          <div class="back-label">Method Applied</div>
+          <div class="back-title">Commands Not<br>Explanations</div>
+          <div class="back-sub">The background number position took six rounds when described in sentences. It took four words: down 2%, down 4%, down 5%.</div>
           <div class="back-bignum">#03</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 005 / REFLECTION ── -->
+  <section class="reflection-section" id="reflection">
+    <div class="reflection-inner">
+      <span class="reflection-index">§ 005 &nbsp;/&nbsp; REFLECTION</span>
+      <div class="reflection-text">
+        <p>This project changed how I think about designing with AI.</p>
+        <p>At the beginning, I assumed that if I could describe the experience clearly enough, AI would be able to generate something close to what I imagined. In practice, I quickly learned that AI could build and revise quickly, but it could not replace the design decisions that needed to happen before implementation.</p>
+        <p>AI was useful for testing layouts, motion ideas, and interaction behaviors. However, it often produced results that technically worked but did not feel visually or experientially right. It could follow an instruction, but it could not always understand the larger design intention, recognize when the visual hierarchy felt unbalanced, or determine whether a motion felt appropriate for the experience.</p>
+        <p>This became especially clear while designing the game interface. The quality of the final result depended heavily on the materials I prepared myself. The card designs, visual system, interaction states, icons, content structure, and supporting assets could not simply be invented through repeated prompting. I needed to design these elements intentionally and provide a clearer foundation before AI could help bring them into the website.</p>
+        <p>I also learned that a storyboard or interaction flow is necessary before building complex motion. Without a clear sequence of what appears, what moves, what responds to the user, and what remains fixed, the implementation can easily become disconnected or visually inconsistent. AI can execute individual requests, but it does not automatically understand the full experience unless that logic has already been defined.</p>
+        <p>My role was therefore not only to give instructions. I had to art direct the process: establish the visual direction, create the key assets, define the interaction logic, review each result, identify what was missing, and decide what should remain unchanged.</p>
+        <p>This project showed me that AI works best as a production and experimentation partner, not as a substitute for design thinking. It can accelerate implementation, generate alternatives, and help test ideas, but the quality of the outcome still depends on having a strong concept, clear visual assets, a structured storyboard, and consistent human judgment.</p>
+        <p>The most important skill was not writing every line of code myself. It was knowing what experience I wanted to create, preparing the right design foundation, recognizing when the result was not there yet, and continuing to shape it until the final product felt intentional.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 006 / PROCESS & ASSETS ── -->
+  <section class="process-section">
+    <div class="process-inner">
+      <span class="process-index">§ 006 &nbsp;/&nbsp; WHAT AI CANNOT DO</span>
+
+      <div class="process-block">
+        <div class="process-block-label">WITHOUT THIS, AI CANNOT START</div>
+        <div class="process-img-single">
+          <div class="process-placeholder">IMAGE &mdash; WHAT AI LACKS</div>
+        </div>
+      </div>
+
+      <div class="process-block">
+        <div class="process-block-label">MY PROCESS</div>
+        <div class="process-img-row">
+          <div class="process-placeholder">IMAGE &mdash; PROCESS 01</div>
+          <div class="process-placeholder">IMAGE &mdash; PROCESS 02</div>
+          <div class="process-placeholder">IMAGE &mdash; PROCESS 03</div>
         </div>
       </div>
     </div>
@@ -520,21 +797,6 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script>
 gsap.registerPlugin(ScrollTrigger)
-
-// ── BARCODE ──────────────────────────────────────────────────
-function makeBarcode(id, seed) {
-  const el = document.getElementById(id); if (!el) return
-  const rng = s => { const x = Math.sin(s)*43758.5453; return x-Math.floor(x) }
-  let rects='', x=0
-  const bar = w => { rects+=`<rect x="${x.toFixed(2)}" y="0" width="${Math.max(0.5,w).toFixed(2)}" height="100"/>`; x+=w }
-  const gap = w => { x+=w }
-  bar(1.5);gap(1);bar(0.8);gap(1);bar(1.5);gap(2)
-  for(let i=0;i<26;i++){bar(rng(seed*137+i*31)*1.8+0.6);gap(rng(seed*71+i*17)*1.2+0.5)}
-  gap(1);bar(1.5);gap(1);bar(0.8);gap(1);bar(1.5)
-  el.setAttribute('viewBox',`0 0 ${Math.ceil(x)} 100`)
-  el.innerHTML=`<g fill="#141414">${rects}</g>`
-}
-makeBarcode('bc1',1); makeBarcode('bc2',2); makeBarcode('bc3',3)
 
 // ── TEXT HELPERS ─────────────────────────────────────────────
 function buildCharSplit(el) {
@@ -565,26 +827,76 @@ document.querySelectorAll('.hero-headline .word-inner').forEach((el,i)=>{
 gsap.fromTo('#hero-sub',{opacity:0,y:10},{opacity:0.5,y:0,duration:0.7,delay:0.6,ease:'power3.out'})
 
 
-// ── INTRO SECTION ANIMATIONS ─────────────────────────────
-// Headline words slide up when section enters
-ScrollTrigger.create({
-  trigger:'#intro', start:'top 75%',
-  onEnter: () => {
-    document.querySelectorAll('#intro .iw-inner').forEach((el,i)=>{
-      gsap.fromTo(el,{yPercent:105},{yPercent:0,duration:0.85,delay:i*0.12,ease:'power4.out'})
-    })
-    // Body paragraphs fade + rise
-    gsap.to('#intro-p1',{opacity:0.70,y:0,duration:0.7,delay:0.35,ease:'power3.out',from:{opacity:0,y:18}})
-    gsap.to('#intro-p2',{opacity:0.70,y:0,duration:0.7,delay:0.52,ease:'power3.out',from:{opacity:0,y:18}})
-    // Step boxes stagger in
-    gsap.to('#intro-steps .intro-step',{
-      opacity:1, y:0, duration:0.55, stagger:0.1, delay:0.55, ease:'power3.out'
-    })
-  }
+// ── OVERVIEW SECTION ANIMATIONS ──────────────────────────────
+;['#about','#workflow','#limitations'].forEach(id => {
+  ScrollTrigger.create({
+    trigger: id, start: 'top 75%',
+    onEnter: () => {
+      document.querySelectorAll(`${id} .iw-inner`).forEach((el,i)=>{
+        gsap.fromTo(el,{yPercent:105},{yPercent:0,duration:0.85,delay:i*0.12,ease:'power4.out'})
+      })
+      if (id === '#about') {
+        gsap.fromTo('#about-body',{opacity:0,y:18},{opacity:0.7,y:0,duration:0.7,delay:0.4,ease:'power3.out'})
+      }
+    }
+  })
 })
 
+// ── WORKFLOW SCROLL TIMELINE ──
+;(function(){
+  const cards = [...document.querySelectorAll('.wf-card')]
+  const dots  = [0,1,2,3].map(i => document.getElementById('wf-dot-' + i))
+  const lbls  = [...document.querySelectorAll('.wf-node-lbl')]
+  const fill  = document.getElementById('wf-rail-fill')
+  if (!fill) return
 
-// ── PARALLAX — section bg numbers + intro glyph move at 80% scroll speed ──
+  // initial state
+  gsap.set(cards, { opacity: 0, y: 14 })
+  gsap.set(cards[0], { opacity: 1, y: 0 })
+  gsap.set(dots[0], { scale: 1.8, backgroundColor: '#141414' })
+  gsap.set(lbls[0], { opacity: 1 })
+
+  const tl = gsap.timeline()
+
+  for (let i = 0; i < 3; i++) {
+    tl
+      .to(cards[i],  { opacity: 0, y: -10, duration: 0.28 }, i)
+      .to(dots[i],   { scale: 1, backgroundColor: 'rgba(0,0,0,0.15)', duration: 0.2 }, i)
+      .to(lbls[i],   { opacity: 0.25, duration: 0.2 }, i)
+      .to(fill,      { scaleX: (i + 1) / 3, duration: 0.5 }, i)
+      .fromTo(cards[i+1], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.3 }, i + 0.28)
+      .to(dots[i+1], { scale: 1.8, backgroundColor: '#141414', duration: 0.2 }, i + 0.28)
+      .to(lbls[i+1], { opacity: 1, duration: 0.2 }, i + 0.28)
+  }
+
+  ScrollTrigger.create({
+    trigger: '.wf-scroll-body',
+    start: 'top top',
+    end: 'bottom bottom',
+    pin: '#wf-sticky',
+    pinSpacing: false,
+    scrub: 1,
+    animation: tl,
+  })
+})()
+
+// ── LATERAL TEXT — section labels ──
+const lateralMap = [
+  { trigger: '#about',       text: 'ABOUT',        prev: 'AI COWORK' },
+  { trigger: '#workflow',    text: 'MY WORKFLOW',   prev: 'ABOUT' },
+  { trigger: '#limitations', text: 'LIMITATIONS',   prev: 'MY WORKFLOW' },
+  { trigger: '#fails',       text: 'STRUGGLES',     prev: 'LIMITATIONS' },
+  { trigger: '#reflection',  text: 'REFLECTION',    prev: 'STRUGGLES' },
+]
+lateralMap.forEach(({ trigger, text, prev }) => {
+  ScrollTrigger.create({
+    trigger, start: 'top 75%',
+    onEnter:     () => animateLateral(text),
+    onLeaveBack: () => animateLateral(prev),
+  })
+})
+
+// ── PARALLAX — section bg numbers ──
 document.querySelectorAll('.section-bg-num').forEach(el => {
   gsap.fromTo(el,
     { yPercent: 9 },
@@ -594,13 +906,15 @@ document.querySelectorAll('.section-bg-num').forEach(el => {
   )
 })
 
-// Intro headline moves slightly slower — creates foreground vs background depth
-gsap.fromTo('.intro-headline',
-  { yPercent: 2 },
-  { yPercent: -4, ease: 'none',
-    scrollTrigger: { trigger: '#intro', start: 'top bottom', end: 'bottom top', scrub: true }
-  }
-)
+// Overview headline parallax
+;['#about','#workflow','#limitations'].forEach(id => {
+  gsap.fromTo(`${id} .overview-headline`,
+    { yPercent: 2 },
+    { yPercent: -4, ease: 'none',
+      scrollTrigger: { trigger: id, start: 'top bottom', end: 'bottom top', scrub: true }
+    }
+  )
+})
 
 
 // ════════════════════════════════════════════════════════════
@@ -616,21 +930,16 @@ wrap.appendChild(renderer.domElement)
 
 const scene = new THREE.Scene()
 
-// Camera: 30° top-down for hero orbital view
-// tan(30°) = 0.577 → y=5, z=8.66
 const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 100)
 camera.position.set(0, 5.0, 8.66)
 camera.lookAt(0, 0, 0)
 
-// ── ENV MAP — directional, high-contrast for layered metal reflections ──
-// This canvas is never shown on page — only baked into material reflections.
+// ── ENV MAP ──
 const envC = document.createElement('canvas'); envC.width=1024; envC.height=512
 const ec = envC.getContext('2d')
 
-// Base: deeper warm-dark — richer shadow depth
 ec.fillStyle='#0e0c0a'; ec.fillRect(0,0,1024,512)
 
-// KEY LIGHT — upper-left, warm white, strong and tight
 const eKey=ec.createRadialGradient(220,60,0,220,60,320)
 eKey.addColorStop(0,'rgba(255,250,232,1)')
 eKey.addColorStop(0.2,'rgba(255,245,215,0.92)')
@@ -638,28 +947,24 @@ eKey.addColorStop(0.55,'rgba(255,238,190,0.35)')
 eKey.addColorStop(1,'rgba(255,238,190,0)')
 ec.fillStyle=eKey; ec.fillRect(0,0,1024,512)
 
-// SECONDARY HIGHLIGHT — upper-right, slightly warm (not cold)
 const eKey2=ec.createRadialGradient(820,80,0,820,80,200)
 eKey2.addColorStop(0,'rgba(240,232,218,0.85)')
 eKey2.addColorStop(0.35,'rgba(220,210,195,0.40)')
 eKey2.addColorStop(1,'rgba(220,210,195,0)')
 ec.fillStyle=eKey2; ec.fillRect(0,0,1024,512)
 
-// WARM FILL — left mid, desaturated warm-grey (was cool blue, now warmer)
 const eFill=ec.createRadialGradient(50,280,0,50,280,380)
 eFill.addColorStop(0,'rgba(175,168,158,0.50)')
 eFill.addColorStop(0.5,'rgba(155,148,138,0.18)')
 eFill.addColorStop(1,'rgba(155,148,138,0)')
 ec.fillStyle=eFill; ec.fillRect(0,0,1024,512)
 
-// RIM LIGHT — right edge, warm strip
 const eRim=ec.createRadialGradient(1010,200,0,1010,200,180)
 eRim.addColorStop(0,'rgba(255,242,200,0.70)')
 eRim.addColorStop(0.4,'rgba(255,235,175,0.25)')
 eRim.addColorStop(1,'rgba(255,235,175,0)')
 ec.fillStyle=eRim; ec.fillRect(0,0,1024,512)
 
-// GROUND BOUNCE — bottom centre, warm amber
 const eGnd=ec.createRadialGradient(512,510,0,512,510,200)
 eGnd.addColorStop(0,'rgba(210,185,145,0.32)')
 eGnd.addColorStop(1,'rgba(210,185,145,0)')
@@ -687,11 +992,12 @@ const fallbackGeos = [
   new THREE.TorusKnotGeometry(0.75,0.26,200,24,2,3),
   new THREE.TorusKnotGeometry(0.70,0.24,200,24,3,5),
   new THREE.TorusKnotGeometry(0.78,0.22,200,24,5,3),
+  new THREE.TorusKnotGeometry(0.72,0.25,200,24,4,3),
 ]
 
-// ── KNOT GROUPS: outer=orbit/position, inner=self-spin ──
-const knotGroups = []  // outer group
-const knotMeshes = []  // inner group (self-spin)
+// ── KNOT GROUPS ──
+const knotGroups = []
+const knotMeshes = []
 
 const gltfLoader = typeof THREE.GLTFLoader !== 'undefined' ? new THREE.GLTFLoader() : null
 
@@ -717,7 +1023,7 @@ function loadKnot(i, onReady) {
 }
 
 let loadedCount = 0
-for (let i=0; i<3; i++) {
+for (let i=0; i<4; i++) {
   loadKnot(i, (outer, inner) => {
     outer.scale.setScalar(0.001)
     outer.position.set(0,0,0)
@@ -725,11 +1031,11 @@ for (let i=0; i<3; i++) {
     knotGroups.push(outer)
     knotMeshes.push(inner)
     loadedCount++
-    if (loadedCount===3) heroIntro()
+    if (loadedCount===4) heroIntro()
   })
 }
 
-// ── HERO INTRO: scale in while orbiting ──
+// ── HERO INTRO ──
 function heroIntro() {
   const hs = isMob() ? 0.55 : 0.78
   knotGroups.forEach((g,i)=>{
@@ -739,14 +1045,11 @@ function heroIntro() {
 
 
 // ── ORBITAL CONSTANTS ──
-// Hero: 3 objects evenly at 120° on a circle, orbit center slightly right
 const ORBIT_R     = { desk:2.3, mob:1.0 }
-const ORBIT_SPEED = 0.22          // rad/s
-const ORBIT_INIT  = [0, Math.PI*2/3, Math.PI*4/3]   // 0°, 120°, 240°
-const ORBIT_CX    = 0.8           // orbit center X offset (shifts ring right of headline)
+const ORBIT_SPEED = 0.22
+const ORBIT_INIT  = [0, Math.PI*2/3, Math.PI*4/3]
+const ORBIT_CX    = 0.8
 
-// Service mode: knot floats on LEFT of card (card is on right)
-// In 3D space with 30° camera, x≈-2.2 projects to left ~40% of viewport
 const SVC_X = { desk:-2.2, mob:-0.8 }
 const SVC_SCALE = { desk:0.85, mob:0.58 }
 
@@ -764,21 +1067,18 @@ window.addEventListener('mousemove',e=>{
 })
 
 // ── MODE & SCROLL ──
-let mode = 'hero'       // 'hero' | 'service'
+let mode = 'hero'
 let current = -1
 let heroScrollProg = 0
-
-let heroInView = true   // false once user scrolls hero fully off-screen
+let heroInView = true
 
 ScrollTrigger.create({
   trigger:'.hero', start:'top top', end:'bottom top', scrub:true,
   onUpdate:    self  => { heroScrollProg = self.progress },
-  // Hero scrolled completely away → hide knots immediately
   onLeave:     ()    => {
     heroInView = false
     knotGroups.forEach(g => gsap.to(g.scale,{x:0.001,y:0.001,z:0.001,duration:0.35,ease:'power2.in',overwrite:true}))
   },
-  // Hero back in view (scrolling up) → restore orbital knots
   onEnterBack: ()    => {
     heroInView = true
     heroScrollProg = 0
@@ -792,17 +1092,15 @@ ScrollTrigger.create({
 
 const recLinesEl = document.getElementById('rec-lines')
 const cfg=[
-  {lat:'WORKSPACE', item:'WORKSPACE INFRA  ×1', ref:'REF: AIC-0001'},
-  {lat:'AI AGENTS', item:'AI AGENTS        ×1', ref:'REF: AIC-0002'},
-  {lat:'REALTIME',  item:'COLLABORATION    ×1', ref:'REF: AIC-0003'},
+  {lat:'METHOD 01', item:'SHOW DON\'T DESCRIBE  ×1', ref:'REF: AIC-M001'},
+  {lat:'METHOD 02', item:'SET BOUNDARY FIRST   ×1', ref:'REF: AIC-M002'},
+  {lat:'METHOD 03', item:'COMMANDS NOT EXPL.   ×1', ref:'REF: AIC-M003'},
 ]
 
-// Receipt accumulation — items print and stay (never erased)
 const printedItems = new Set()
 function printReceiptLine(i) {
   if (printedItems.has(i)) return
   printedItems.add(i)
-  // Remove the "ENTER TO DISCOVER" hint on first real item
   if (printedItems.size === 1) {
     recLinesEl.innerHTML = ''
   }
@@ -810,16 +1108,12 @@ function printReceiptLine(i) {
   line.className = 'rec-line'
   line.innerHTML = `${cfg[i].item}<br><span class="rec-ref-txt">${cfg[i].ref}</span>`
   recLinesEl.appendChild(line)
-  // Let GSAP own the initial state so tween starts correctly
   gsap.set(line, { opacity: 0, y: 5 })
   gsap.to(line, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out', delay: 0.08 })
 }
 
-// ── KNOT SHOW/HIDE (service mode) ──
-// showKnot is the single source of truth: it INSTANTLY hides every other knot
-// before scaling in the intended one — prevents overlap on fast scroll.
+// ── KNOT SHOW/HIDE ──
 function showKnot(i){
-  // Kill any in-flight scale tweens and snap all OTHER knots to zero immediately
   knotGroups.forEach((g,j) => {
     if(j!==i){
       gsap.killTweensOf(g.scale)
@@ -843,16 +1137,13 @@ function enter(i){
   current=i
   const card=document.getElementById(`card${i+1}`)
 
-  // Card elastic bounce-in
   gsap.fromTo(card,{scale:0.8,x:55,opacity:0},{scale:1,x:0,opacity:1,duration:1.1,ease:'elastic.out(1,0.62)',overwrite:true})
   gsap.fromTo(card.querySelector('.num-inner'),  {yPercent:100},{yPercent:0,duration:0.55,delay:0.08,ease:'power3.out'})
   gsap.fromTo(card.querySelector('.title-inner'),{yPercent:100},{yPercent:0,duration:0.55,delay:0.15,ease:'power3.out'})
-  gsap.fromTo(card.querySelectorAll('.stat'),{x:12,opacity:0},{x:0,opacity:1,duration:0.4,stagger:0.05,delay:0.3,ease:'power2.out'})
 
   animateLateral(cfg[i].lat)
   printReceiptLine(i)
 
-  // 3D: showKnot handles hiding all others instantly — safe at any scroll speed
   if(mode==='hero') mode='service'
   showKnot(i)
 }
@@ -860,12 +1151,9 @@ function leave(i){
   if(current!==i)return; current=-1
   const card=document.getElementById(`card${i+1}`)
   gsap.to(card,{scale:0.88,x:-45,opacity:0,duration:0.42,ease:'power2.in',overwrite:true})
-  animateLateral('AI COWORK')
   hideKnot(i)
 }
 function returnToHero(){
-  // Only set state — hero onEnterBack handles re-showing the knots
-  // (knots stay hidden while user is still in the intro section)
   mode='hero'; current=-1
 }
 
@@ -875,19 +1163,17 @@ function returnToHero(){
     onEnter:     ()=>enter(i),
     onEnterBack: ()=>enter(i),
     onLeave:     ()=>leave(i),
-    onLeaveBack: ()=>{leave(i);if(i===0)returnToHero()},
+    onLeaveBack: ()=>{leave(i);if(i===0){returnToHero();animateLateral('AI COWORK')}},
   })
 })
 
 
 // ════════════════════════════════════════════════════════════
-// CARD INTERACTIONS — HOVER SHAKE + CLICK FLIP → REDIRECT
+// CARD INTERACTIONS — HOVER SHAKE + CLICK FLIP
 // ════════════════════════════════════════════════════════════
 document.querySelectorAll('.card-flip').forEach(card=>{
 
-  // Hover: soft micro-shake
   card.addEventListener('mouseenter',()=>{
-    // Don't shake if already flipped (rotateY near 180)
     const ry = gsap.getProperty(card,'rotateY') || 0
     if(Math.abs(ry)>90)return
     gsap.killTweensOf(card,{x:true,rotation:true})
@@ -906,21 +1192,22 @@ document.querySelectorAll('.card-flip').forEach(card=>{
     if(Math.abs(ry)<90) gsap.to(card,{x:0,rotation:0,duration:0.3,ease:'power2.out'})
   })
 
-  // Click: GSAP flip → loading bar → redirect
   let flipping=false
   card.addEventListener('click',()=>{
     if(flipping)return; flipping=true
-    const workUrl=card.dataset.work||'work1.html'
+    const workUrl=card.dataset.work
     const barEl=card.querySelector('.back-bar')
 
     gsap.to(card,{
       rotateY:180, duration:0.75, ease:'power2.inOut',
       onComplete:()=>{
-        // Animate loading bar on the back face
-        gsap.to(barEl,{
-          width:'45%', duration:0.5, ease:'power2.out',
-          onComplete:()=>{ window.location.href=workUrl }
-        })
+        if(workUrl){
+          gsap.to(barEl,{
+            width:'45%', duration:0.5, ease:'power2.out',
+            onComplete:()=>{ window.location.href=workUrl }
+          })
+        }
+        // No redirect: card stays flipped showing the example
       }
     })
   })
@@ -939,33 +1226,27 @@ const clock = new THREE.Clock()
   mouse.ly+=(mouse.y-mouse.ly)*0.04
 
   if(mode==='hero' && heroInView){
-    // ── Planetary orbital in XZ plane, camera looks down 30° ──
     const R=orbitR(); const exitY=heroScrollProg*7.0
 
     knotGroups.forEach((g,i)=>{
-      // Self-spin
       knotMeshes[i].rotation.x+=0.003+i*0.0008
       knotMeshes[i].rotation.y+=0.006-i*0.0008
-      // Orbit around (ORBIT_CX, 0, 0) — shifted right so it doesn't cover headline
-      const angle=ORBIT_INIT[i]+t*ORBIT_SPEED
+      const angle=ORBIT_INIT[i % 3]+t*ORBIT_SPEED
       g.position.x=ORBIT_CX+R*Math.cos(angle)
       g.position.z=R*Math.sin(angle)
-      g.position.y=exitY   // scroll pushes entire ring upward
-      // Gentle mouse tilt
+      g.position.y=exitY
       g.rotation.x+=(mouse.ly*0.04-g.rotation.x)*0.06
       g.rotation.y+=(mouse.lx*0.04-g.rotation.y)*0.06
     })
   } else {
-    // ── Service mode: one knot on the LEFT of screen ──
     knotGroups.forEach((g,i)=>{
       if(g.scale.x<0.01)return
       knotMeshes[i].rotation.x+=0.004
       knotMeshes[i].rotation.y+=0.007
       if(i===current){
-        g.position.y=Math.sin(t*0.35+i*1.7)*0.09  // gentle float
-        g.position.x=svcX()  // hold LEFT position
+        g.position.y=Math.sin(t*0.35+i*1.7)*0.09
+        g.position.x=svcX()
         g.position.z=0
-        // Mouse tilt follows cursor
         g.rotation.x+=(mouse.ly*0.12-g.rotation.x)*0.06
         g.rotation.y+=(mouse.lx*0.12-g.rotation.y)*0.06
       }
